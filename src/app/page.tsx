@@ -10,6 +10,7 @@ import { toast } from '@/hooks/use-toast'
 import { useAuth } from '@/contexts/auth-context'
 import { supabase } from '@/lib/supabase'
 import AuthForm from '@/components/auth-form'
+import TodayMoodWidget from '@/components/mood/TodayMoodWidget'
 
 interface Dream {
   id: string
@@ -342,6 +343,11 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
             <LogOut className="w-4 h-4 mr-2" />
             Sign Out
           </Button>
+        </div>
+
+        {/* Mood Widget */}
+        <div className="mb-6">
+          <TodayMoodWidget userId={user.id} />
         </div>
 
         {/* Navigation */}
