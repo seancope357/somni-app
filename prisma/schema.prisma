@@ -1,0 +1,28 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Dream {
+  id           String   @id @default(cuid())
+  content      String
+  interpretation String?
+  sleepHours   Float?   // Hours of sleep before the dream
+  symbols      String?  // JSON array of detected symbols
+  emotions     String?  // JSON array of detected emotions
+  themes       String?  // JSON array of detected themes
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@map("dreams")
+}
