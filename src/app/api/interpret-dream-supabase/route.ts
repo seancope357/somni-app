@@ -134,12 +134,22 @@ Additionally, after your interpretation, provide a JSON object with detected pat
       savedDream
     })
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Dream interpretation error:', error)
+    console.error('Error message:', error?.message)
+    console.error('Error status:', error?.status)
+    console.error('Error details:', JSON.stringify(error, null, 2))
+    
+    // Return more specific error message
+    const errorMessage = error?.message || 'Failed to interpret dream. Please try again.'
+    const statusCode = error?.status || 500
     
     return NextResponse.json(
-      { error: 'Failed to interpret dream. Please try again.' },
-      { status: 500 }
+      { 
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? error?.error : undefined 
+      },
+      { status: statusCode }
     )
   }
 }
