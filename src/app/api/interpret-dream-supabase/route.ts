@@ -1,12 +1,20 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import ZAI from 'z-ai-web-dev-sdk'
+import Groq from 'groq-sdk'
+
+// Force Node.js runtime for Groq SDK compatibility
+export const runtime = 'nodejs'
 
 // Create Supabase client
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
+
+// Create Groq client
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY!
+})
 
 export async function POST(request: Request) {
   try {
@@ -26,14 +34,13 @@ export async function POST(request: Request) {
       )
     }
 
-    const zai = await ZAI.create()
-
     // Create enhanced prompt that considers sleep hours
     const sleepContext = sleepHours ? 
       `The dreamer had ${sleepHours} hours of sleep before this dream. ${sleepHours < 6 ? 'This is relatively little sleep, which may influence dream content and recall. ' : sleepHours > 9 ? 'This is more sleep than average, which may affect dream vividness and complexity. ' : 'This is a normal amount of sleep. '}` : ''
 
-    // Get interpretation
-    const completion = await zai.chat.completions.create({
+    // Get interpretation using Groq
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.1-70b-versatile',
       messages: [
         {
           role: 'system',
@@ -71,7 +78,7 @@ Additionally, after your interpretation, provide a JSON object with detected pat
         }
       ],
       temperature: 0.7,
-      max_tokens: 1000
+      max_tokens: 2000
     })
 
     const fullResponse = completion.choices[0]?.message?.content

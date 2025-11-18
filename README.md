@@ -18,7 +18,7 @@ A modern, AI-powered dream interpretation and journaling application built with 
 - **Backend**: Next.js API Routes, Supabase
 - **Database**: Supabase (PostgreSQL)
 - **Authentication**: Supabase Auth
-- **AI**: z-ai-web-dev-sdk
+- **AI**: Groq (Llama 3.1 70B)
 - **Deployment**: Vercel-ready
 
 ## Getting Started
@@ -40,16 +40,26 @@ npm install
 2. Run the SQL schema from `supabase-schema.sql` in your Supabase SQL editor
 3. Copy your project URL and keys from Supabase settings
 
-### 4. Environment variables
+### 4. Set up Groq API
+
+1. Sign up for a free account at [console.groq.com](https://console.groq.com)
+2. Create an API key from the dashboard
+3. Copy your API key for the next step
+
+### 5. Environment variables
 Create a `.env.local` file with:
 
 ```env
+# Supabase
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+
+# Groq AI
+GROQ_API_KEY=your_groq_api_key
 ```
 
-### 5. Run the development server
+### 6. Run the development server
 ```bash
 npm run dev
 ```
@@ -59,6 +69,7 @@ npm run dev
 - `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anonymous key
 - `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key (server-side only)
+- `GROQ_API_KEY`: Your Groq API key for AI dream interpretation
 
 ## Database Schema
 
