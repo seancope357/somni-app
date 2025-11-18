@@ -18,7 +18,7 @@ A modern, AI-powered dream interpretation and journaling application built with 
 - **Backend**: Next.js API Routes, Supabase
 - **Database**: Supabase (PostgreSQL)
 - **Authentication**: Supabase Auth
-- **AI**: Groq (Llama 3.1 70B)
+- **AI**: Groq (Llama 3.3 70B)
 - **Deployment**: Vercel-ready
 
 ## Getting Started
