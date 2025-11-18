@@ -17,8 +17,14 @@ const groq = new Groq({
 })
 
 export async function POST(request: Request) {
+  console.log('=== Dream Interpretation Request Started ===')
+  console.log('GROQ_API_KEY exists:', !!process.env.GROQ_API_KEY)
+  console.log('GROQ_API_KEY length:', process.env.GROQ_API_KEY?.length)
+  console.log('SUPABASE_URL exists:', !!process.env.NEXT_PUBLIC_SUPABASE_URL)
+  
   try {
     const { dream, sleepHours, saveToHistory, userId } = await request.json()
+    console.log('Request data received:', { dreamLength: dream?.length, sleepHours, saveToHistory, userId: userId?.substring(0, 8) + '...' })
 
     if (!dream || typeof dream !== 'string' || dream.trim().length === 0) {
       return NextResponse.json(
@@ -39,6 +45,7 @@ export async function POST(request: Request) {
       `The dreamer had ${sleepHours} hours of sleep before this dream. ${sleepHours < 6 ? 'This is relatively little sleep, which may influence dream content and recall. ' : sleepHours > 9 ? 'This is more sleep than average, which may affect dream vividness and complexity. ' : 'This is a normal amount of sleep. '}` : ''
 
     // Get interpretation using Groq
+    console.log('Calling Groq API...')
     const completion = await groq.chat.completions.create({
       model: 'llama-3.3-70b-versatile',
       messages: [
