@@ -1,4 +1,4 @@
--- SOMNI App: Mood Tracking, Life Events, Reminders & Themes Migration
+-- ONEIR App: Mood Tracking, Life Events, Reminders & Themes Migration
 -- Run this in your Supabase SQL Editor
 
 -- 1) Extensions

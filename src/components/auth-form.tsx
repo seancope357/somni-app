@@ -57,7 +57,7 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
         if (error) throw error
         toast({
           title: "Welcome back!",
-          description: "Successfully signed in to SOMNI.",
+          description: "Successfully signed in to ONEIR.",
         })
         onAuthSuccess()
       }
@@ -79,7 +79,7 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
           {isSignUp ? 'Create Account' : 'Sign In'}
         </CardTitle>
         <CardDescription className="text-gray-600">
-          {isSignUp ? 'Start your dream journey with SOMNI' : 'Welcome back to your dream journal'}
+          {isSignUp ? 'Start your dream journey with ONEIR' : 'Welcome back to your dream journal'}
         </CardDescription>
       </CardHeader>
       <CardContent>

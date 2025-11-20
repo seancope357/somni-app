@@ -1,8 +1,8 @@
-# SOMNI - Mood Tracking & Life Events Implementation Guide
+# ONEIR - Mood Tracking & Life Events Implementation Guide
 
 ## 🎯 Overview
 
-This guide documents the implementation of two major new features for the SOMNI dream journal app:
+This guide documents the implementation of two major new features for the ONEIR dream journal app:
 
 1. **Mood Tracking & Correlations** - Track daily mood, stress, and energy levels to discover how they correlate with your dreams
 2. **Life Events Tracking** - Log significant life events and see their impact on your dream patterns

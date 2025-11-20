@@ -1,4 +1,4 @@
-# SOMNI - Dream Interpretation & Journal
+# ONEIR - Dream Interpretation & Journal
 
 A modern, AI-powered dream interpretation and journaling application built with Next.js 15, TypeScript, and Supabase.
 
@@ -26,7 +26,7 @@ A modern, AI-powered dream interpretation and journaling application built with 
 ### 1. Clone the repository
 ```bash
 git clone <repository-url>
-cd somni
+cd oneir
 ```
 
 ### 2. Install dependencies

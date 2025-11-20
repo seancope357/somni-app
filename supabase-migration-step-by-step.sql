@@ -1,4 +1,4 @@
--- SOMNI App: Mood Tracking & Life Events Migration (Step-by-Step)
+-- ONEIR App: Mood Tracking & Life Events Migration (Step-by-Step)
 -- Run each section separately to identify any issues
 
 -- =====================================================

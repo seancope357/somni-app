@@ -1,4 +1,4 @@
--- SOMNI Complete Migration - Run this entire file at once
+-- ONEIR Complete Migration - Run this entire file at once
 -- This recreates the dreams table and adds all mood/events features
 
 -- =====================================================

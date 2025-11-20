@@ -1,6 +1,6 @@
-# SOMNI - Supabase & Vercel Deployment Guide
+# ONEIR - Supabase & Vercel Deployment Guide
 
-This guide will help you set up SOMNI with Supabase authentication and deploy to Vercel.
+This guide will help you set up ONEIR with Supabase authentication and deploy to Vercel.
 
 ## 🚀 Quick Start
 
@@ -14,7 +14,7 @@ This guide will help you set up SOMNI with Supabase authentication and deploy to
 2. **Create a New Project**
    - Click "New Project"
    - Choose organization
-   - Set project name: `somni-app`
+   - Set project name: `oneir-app`
    - Set database password (save it securely)
    - Choose region closest to your users
    - Click "Create new project"
@@ -146,7 +146,7 @@ The app is fully responsive and works great on:
 
 Once deployed to Vercel:
 1. Your app will be available at `your-app-name.vercel.app`
-2. Users can sign up and start using SOMNI immediately
+2. Users can sign up and start using ONEIR immediately
 3. All data is securely stored in your Supabase database
 4. Real-time updates and authentication work out of the box
 
@@ -179,4 +179,4 @@ After deployment, consider:
 - Review Vercel function logs
 - Verify Supabase dashboard for any issues
 
-Your SOMNI app is now ready for production! 🎉
+Your ONEIR app is now ready for production! 🎉

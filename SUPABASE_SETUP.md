@@ -4,7 +4,7 @@
 1. Go to [https://supabase.com](https://supabase.com)
 2. Click "Start your project" 
 3. Sign up with GitHub or Google
-4. Create a new project (name: `somni-app` or similar)
+4. Create a new project (name: `oneir-app` or similar)
 
 ## 2. Get Your Supabase Credentials
 1. In your Supabase project dashboard, go to **Settings → API**

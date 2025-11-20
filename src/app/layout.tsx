@@ -15,23 +15,23 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SOMNI - Dream Interpretation & Journal",
-  description: "Decode your dreams with SOMNI, the AI-powered dream interpretation and journal app. Track patterns, get insights, and understand your subconscious mind.",
-  keywords: ["SOMNI", "dream interpretation", "dream journal", "dream meaning", "dream analysis", "AI dream", "subconscious", "dream symbols", "sleep tracker", "dream dictionary"],
-  authors: [{ name: "SOMNI Team" }],
+  title: "ONEIR - Dream Interpretation & Journal",
+  description: "Decode your dreams with ONEIR, the AI-powered dream interpretation and journal app. Track patterns, get insights, and understand your subconscious mind.",
+  keywords: ["ONEIR", "dream interpretation", "dream journal", "dream meaning", "dream analysis", "AI dream", "subconscious", "dream symbols", "sleep tracker", "dream dictionary"],
+  authors: [{ name: "ONEIR Team" }],
   icons: {
-    icon: "/somni-logo.png",
+    icon: "/oneir-icon.png",
   },
   openGraph: {
-    title: "SOMNI - Dream Interpretation & Journal",
+    title: "ONEIR - Dream Interpretation & Journal",
     description: "Decode your dreams with AI-powered interpretation and track your subconscious patterns",
     url: "https://chat.z.ai",
-    siteName: "SOMNI",
+    siteName: "ONEIR",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "SOMNI - Dream Interpretation & Journal",
+    title: "ONEIR - Dream Interpretation & Journal",
     description: "Decode your dreams with AI-powered interpretation and track your subconscious patterns",
   },
 };
