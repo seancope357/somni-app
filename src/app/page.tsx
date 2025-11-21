@@ -20,6 +20,7 @@ import SimilarDreams from '@/components/dreams/SimilarDreams'
 import SmartPrompts from '@/components/prompts/SmartPrompts'
 import HistoryFilters, { FilterOptions } from '@/components/dreams/HistoryFilters'
 import JournalView from '@/components/journal/JournalView'
+import DreamDetailsDialog from '@/components/dreams/DreamDetailsDialog'
 
 interface Dream {
   id: string
@@ -61,6 +62,8 @@ export default function Home() {
     hasLinkedEvents: null,
     sortBy: 'date-desc'
   })
+  const [selectedDream, setSelectedDream] = useState<Dream | null>(null)
+  const [showDreamDialog, setShowDreamDialog] = useState(false)
 
   useEffect(() => {
     if (user && currentView === 'history') {
@@ -721,7 +724,14 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
               </Card>
             ) : (
               filteredDreams.map((dream) => (
-                <Card key={dream.id} className="border-0 bg-white/95 backdrop-blur-lg rounded-2xl shadow-lg">
+                <Card 
+                  key={dream.id} 
+                  className="border-0 bg-white/95 backdrop-blur-lg rounded-2xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                  onClick={() => {
+                    setSelectedDream(dream)
+                    setShowDreamDialog(true)
+                  }}
+                >
                   <CardHeader className="pb-3">
                     <div className="flex justify-between items-start">
                       <CardTitle className="text-lg font-serif text-gray-800 flex-1">
@@ -765,6 +775,13 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
                 </Card>
               ))
             )}
+
+            {/* Dream Details Dialog */}
+            <DreamDetailsDialog
+              dream={selectedDream}
+              open={showDreamDialog}
+              onClose={() => setShowDreamDialog(false)}
+            />
           </div>
         )}
 
