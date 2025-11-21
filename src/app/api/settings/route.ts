@@ -68,6 +68,7 @@ export async function POST(request: Request) {
     const body = await request.json()
     const {
       userId,
+      user_id,
       timezone,
       reminders_enabled,
       reminder_time_local,
@@ -77,7 +78,9 @@ export async function POST(request: Request) {
       remind_for
     } = body
 
-    if (!userId) {
+    const actualUserId = userId || user_id
+
+    if (!actualUserId) {
       return NextResponse.json(
         { error: 'User ID required' },
         { status: 400 }
@@ -111,7 +114,7 @@ export async function POST(request: Request) {
     }
 
     const settingsData = {
-      user_id: userId,
+      user_id: actualUserId,
       timezone: timezone || 'UTC',
       reminders_enabled: reminders_enabled !== undefined ? reminders_enabled : false,
       reminder_time_local: reminder_time_local || '21:00',
