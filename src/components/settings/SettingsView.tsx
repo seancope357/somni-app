@@ -367,7 +367,7 @@ export default function SettingsView({ userId, userEmail }: SettingsViewProps) {
         </CardHeader>
         <CardContent className="space-y-3">
           <p className="text-sm text-gray-600 mb-4">
-            Export your complete ONEIR data for backup or analysis. All data is yours to keep.
+            Export your complete DREAMONEIR data for backup or analysis. All data is yours to keep.
           </p>
           <div className="flex space-x-3">
             <Button
