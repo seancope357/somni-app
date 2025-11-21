@@ -83,30 +83,31 @@ export default function LifeEventsTimeline({ userId }: LifeEventsTimelineProps) 
 
   return (
     <div className="space-y-4">
-      {/* Header with actions */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-serif text-gray-800">Life Events</h2>
-          <p className="text-sm text-gray-600">Track significant moments that influence your dreams</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowFilters(!showFilters)}
-            className="bg-white/80"
-          >
-            <Filter className="w-4 h-4 mr-2" />
-            Filter
-          </Button>
+      {/* Header with actions - Mobile optimized */}
+      <div className="space-y-3">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-xl sm:text-2xl font-serif text-gray-800">Life Events</h2>
+            <p className="text-xs sm:text-sm text-gray-600">Track moments that influence your dreams</p>
+          </div>
           <Button
             onClick={() => setShowDialog(true)}
-            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+            size="sm"
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 flex-shrink-0"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Event
+            <Plus className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Add Event</span>
           </Button>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowFilters(!showFilters)}
+          className="bg-white/80 w-full sm:w-auto"
+        >
+          <Filter className="w-4 h-4 mr-2" />
+          Filter by Category
+        </Button>
       </div>
 
       {/* Filters */}

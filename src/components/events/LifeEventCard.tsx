@@ -69,43 +69,44 @@ export default function LifeEventCard({ event, onEdit, onDelete }: LifeEventCard
   return (
     <>
       <Card className={`${categoryConfig.bgColor} border-2 ${categoryConfig.borderColor} hover:shadow-lg transition-shadow`}>
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex items-start space-x-3 flex-1">
-              <div className={`p-2 rounded-lg ${categoryConfig.bgColor} border ${categoryConfig.borderColor}`}>
-                <CategoryIcon className={`w-5 h-5 ${categoryConfig.color}`} />
+        <CardContent className="p-3 sm:p-4">
+          <div className="flex items-start justify-between gap-2 mb-3">
+            <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
+              <div className={`p-1.5 sm:p-2 rounded-lg ${categoryConfig.bgColor} border ${categoryConfig.borderColor} flex-shrink-0`}>
+                <CategoryIcon className={`w-4 h-4 sm:w-5 sm:h-5 ${categoryConfig.color}`} />
               </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-800 mb-1">{event.title}</h3>
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <Calendar className="w-4 h-4" />
-                  <span>{formatDate(event.date_start)}</span>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-sm sm:text-base text-gray-800 mb-1 break-words">{event.title}</h3>
+                <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-600 flex-wrap">
+                  <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                  <span className="whitespace-nowrap">{formatDate(event.date_start)}</span>
                   {event.date_end && (
                     <>
-                      <span>→</span>
-                      <span>{formatDate(event.date_end)}</span>
+                      <span className="hidden sm:inline">→</span>
+                      <span className="sm:hidden">-</span>
+                      <span className="whitespace-nowrap">{formatDate(event.date_end)}</span>
                     </>
                   )}
                 </div>
               </div>
             </div>
             
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center gap-1 flex-shrink-0">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => onEdit(event)}
-                className="h-8 w-8 p-0 hover:bg-white/50"
+                className="h-7 w-7 sm:h-8 sm:w-8 p-0 hover:bg-white/50"
               >
-                <Edit className="w-4 h-4 text-gray-600" />
+                <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600" />
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowDeleteDialog(true)}
-                className="h-8 w-8 p-0 hover:bg-red-50"
+                className="h-7 w-7 sm:h-8 sm:w-8 p-0 hover:bg-red-50"
               >
-                <Trash2 className="w-4 h-4 text-red-600" />
+                <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-600" />
               </Button>
             </div>
           </div>
@@ -131,7 +132,7 @@ export default function LifeEventCard({ event, onEdit, onDelete }: LifeEventCard
           )}
 
           {event.description && (
-            <p className="text-sm text-gray-700 mb-3 leading-relaxed">
+            <p className="text-xs sm:text-sm text-gray-700 mb-3 leading-relaxed break-words">
               {event.description}
             </p>
           )}
