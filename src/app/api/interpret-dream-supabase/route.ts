@@ -40,9 +40,25 @@ export async function POST(request: Request) {
       )
     }
 
+    // Fetch today's mood log to link with dream
+    const today = new Date().toISOString().split('T')[0]
+    const { data: moodLog } = await supabase
+      .from('mood_logs')
+      .select('id, mood, stress, energy, notes')
+      .eq('user_id', userId)
+      .eq('log_date', today)
+      .single()
+    
+    console.log('Mood log for today:', moodLog ? 'Found' : 'Not found')
+
     // Create enhanced prompt that considers sleep hours
     const sleepContext = sleepHours ? 
       `The dreamer had ${sleepHours} hours of sleep before this dream. ${sleepHours < 6 ? 'This is relatively little sleep, which may influence dream content and recall. ' : sleepHours > 9 ? 'This is more sleep than average, which may affect dream vividness and complexity. ' : 'This is a normal amount of sleep. '}` : ''
+    
+    // Create mood context if available
+    const moodEmojis = ['😢', '😕', '😐', '😊', '😄']
+    const moodContext = moodLog ? 
+      `\n\nToday's Emotional Context: The dreamer logged their mood today as ${moodEmojis[moodLog.mood - 1]} (${moodLog.mood}/5), with stress level ${moodLog.stress}/5 and energy level ${moodLog.energy}/5.${moodLog.notes ? ` Note: "${moodLog.notes}"` : ''} Consider how these emotional states might have influenced the dream content, symbolism, and overall tone.` : ''
 
     // Get interpretation using Groq
     console.log('Calling Groq API...')
@@ -53,7 +69,9 @@ export async function POST(request: Request) {
           role: 'system',
           content: `You are a professional dream interpreter with deep knowledge of psychology, symbolism, and various cultural perspectives on dreams. 
           
-${sleepContext}Your task is to provide thoughtful, insightful interpretations of dreams while being:
+${sleepContext}${moodContext}
+
+Your task is to provide thoughtful, insightful interpretations of dreams while being:
 
 - Respectful and supportive
 - Culturally sensitive 
@@ -122,7 +140,8 @@ Additionally, after your interpretation, provide a JSON object with detected pat
           sleep_hours: sleepHours || null,
           symbols: patterns.symbols || [],
           emotions: patterns.emotions || [],
-          themes: patterns.themes || []
+          themes: patterns.themes || [],
+          mood_log_id: moodLog?.id || null
         })
         .select()
         .single()
@@ -138,7 +157,13 @@ Additionally, after your interpretation, provide a JSON object with detected pat
     return NextResponse.json({ 
       interpretation,
       patterns,
-      savedDream
+      savedDream,
+      moodContext: moodLog ? {
+        mood: moodLog.mood,
+        stress: moodLog.stress,
+        energy: moodLog.energy,
+        emoji: moodEmojis[moodLog.mood - 1]
+      } : null
     })
 
   } catch (error: any) {

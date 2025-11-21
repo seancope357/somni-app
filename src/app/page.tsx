@@ -5,12 +5,20 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, Mic, MicOff, Sparkles, Book, History, TrendingUp, Search, X, LogOut } from 'lucide-react'
+import { Loader2, Mic, MicOff, Sparkles, Book, History, TrendingUp, Search, X, LogOut, Heart, Brain, Zap, Calendar, Lightbulb, Settings } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 import { useAuth } from '@/contexts/auth-context'
 import { supabase } from '@/lib/supabase'
 import AuthForm from '@/components/auth-form'
 import TodayMoodWidget from '@/components/mood/TodayMoodWidget'
+import MoodHistoryChart from '@/components/mood/MoodHistoryChart'
+import LifeEventsTimeline from '@/components/events/LifeEventsTimeline'
+import DreamEventLinker from '@/components/events/DreamEventLinker'
+import InsightsView from '@/components/insights/InsightsView'
+import SettingsView from '@/components/settings/SettingsView'
+import SimilarDreams from '@/components/dreams/SimilarDreams'
+import SmartPrompts from '@/components/prompts/SmartPrompts'
+import HistoryFilters, { FilterOptions } from '@/components/dreams/HistoryFilters'
 
 interface Dream {
   id: string
@@ -37,14 +45,21 @@ export default function Home() {
   const { user, loading, signOut } = useAuth()
   const [dreamText, setDreamText] = useState('')
   const [interpretation, setInterpretation] = useState('')
+  const [moodContext, setMoodContext] = useState<{ mood: number; stress: number; energy: number; emoji: string } | null>(null)
   const [sleepHours, setSleepHours] = useState(7.5)
   const [isLoading, setIsLoading] = useState(false)
   const [isListening, setIsListening] = useState(false)
-  const [currentView, setCurrentView] = useState<'interpret' | 'history' | 'patterns'>('interpret')
+  const [currentView, setCurrentView] = useState<'interpret' | 'history' | 'patterns' | 'events' | 'insights' | 'settings'>('interpret')
   const [dreams, setDreams] = useState<Dream[]>([])
   const [patterns, setPatterns] = useState<Patterns | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [saveToHistory, setSaveToHistory] = useState(true)
+  const [historyFilters, setHistoryFilters] = useState<FilterOptions>({
+    dateRange: null,
+    moodLevel: null,
+    hasLinkedEvents: null,
+    sortBy: 'date-desc'
+  })
 
   useEffect(() => {
     if (user && currentView === 'history') {
@@ -123,6 +138,7 @@ export default function Home() {
 
       const data = await response.json()
       setInterpretation(data.interpretation)
+      setMoodContext(data.moodContext)
       
       if (saveToHistory && data.savedDream) {
         toast({
@@ -191,14 +207,48 @@ export default function Home() {
     }
   }
 
-  const filteredDreams = dreams.filter(dream =>
-    dream.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    dream.interpretation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    dream.symbols.some(symbol => symbol.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    dream.emotions.some(emotion => emotion.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    dream.themes.some(theme => theme.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (dream.sleep_hours && dream.sleep_hours.toString().includes(searchTerm))
-  )
+  // Apply search and filters
+  const filteredDreams = dreams
+    .filter(dream => {
+      // Search filter
+      const matchesSearch = 
+        dream.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        dream.interpretation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        dream.symbols.some(symbol => symbol.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        dream.emotions.some(emotion => emotion.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        dream.themes.some(theme => theme.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (dream.sleep_hours && dream.sleep_hours.toString().includes(searchTerm))
+      
+      if (!matchesSearch) return false
+
+      // Date range filter
+      if (historyFilters.dateRange) {
+        const dreamDate = new Date(dream.created_at).toISOString().split('T')[0]
+        if (dreamDate < historyFilters.dateRange.start || dreamDate > historyFilters.dateRange.end) {
+          return false
+        }
+      }
+
+      // Note: mood and event filters would need additional data from API
+      // For now, keeping them as UI-only; can extend later
+
+      return true
+    })
+    .sort((a, b) => {
+      // Apply sorting
+      switch (historyFilters.sortBy) {
+        case 'date-asc':
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        case 'date-desc':
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        case 'sleep-asc':
+          return (a.sleep_hours || 0) - (b.sleep_hours || 0)
+        case 'sleep-desc':
+          return (b.sleep_hours || 0) - (a.sleep_hours || 0)
+        default:
+          return 0
+      }
+    })
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -317,17 +367,17 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500 rounded-full filter blur-3xl opacity-10 animate-pulse" style={{ animationDelay: '4s' }}></div>
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-md">
+      <div className="relative z-10 container mx-auto px-4 py-4 sm:py-8 max-w-md">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-6xl md:text-7xl font-serif text-white mb-2 tracking-wide font-bold">
+        <div className="text-center mb-4 sm:mb-8">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl font-serif text-white mb-2 tracking-wide font-bold">
             ONEIR
           </h1>
-          <div className="w-32 h-0.5 bg-gradient-to-r from-transparent via-purple-300 to-transparent mx-auto mb-3"></div>
-          <p className="text-purple-100 text-sm font-mono tracking-widest uppercase">
+          <div className="w-24 sm:w-32 h-0.5 bg-gradient-to-r from-transparent via-purple-300 to-transparent mx-auto mb-2 sm:mb-3"></div>
+          <p className="text-purple-100 text-xs sm:text-sm font-mono tracking-widest uppercase">
             Dream Interpretation & Journal
           </p>
-          <p className="text-purple-100 text-xs mt-3 font-light tracking-wide">
+          <p className="text-purple-100 text-xs mt-2 sm:mt-3 font-light tracking-wide">
             Welcome back, {user.email?.split('@')[0]}
           </p>
         </div>
@@ -350,35 +400,62 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
           <TodayMoodWidget userId={user.id} />
         </div>
 
-        {/* Navigation */}
-        <div className="flex justify-center mb-8">
-          <div className="bg-white/10 backdrop-blur-lg rounded-full p-1 flex">
+        {/* Navigation - Mobile optimized */}
+        <div className="flex justify-center mb-4 sm:mb-8">
+          <div className="bg-white/10 backdrop-blur-lg rounded-full p-1 flex flex-wrap justify-center gap-1">
             <Button
               variant={currentView === 'interpret' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setCurrentView('interpret')}
-              className="rounded-full px-4 py-2 text-sm font-medium"
+              className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium"
             >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Interpret
+              <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Interpret</span>
             </Button>
             <Button
               variant={currentView === 'history' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setCurrentView('history')}
-              className="rounded-full px-4 py-2 text-sm font-medium"
+              className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium"
             >
-              <History className="w-4 h-4 mr-2" />
-              History
+              <History className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">History</span>
             </Button>
             <Button
               variant={currentView === 'patterns' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setCurrentView('patterns')}
-              className="rounded-full px-4 py-2 text-sm font-medium"
+              className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium"
             >
-              <TrendingUp className="w-4 h-4 mr-2" />
-              Patterns
+              <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Patterns</span>
+            </Button>
+            <Button
+              variant={currentView === 'events' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setCurrentView('events')}
+              className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium"
+            >
+              <Calendar className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Events</span>
+            </Button>
+            <Button
+              variant={currentView === 'insights' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setCurrentView('insights')}
+              className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium"
+            >
+              <Lightbulb className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Insights</span>
+            </Button>
+            <Button
+              variant={currentView === 'settings' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setCurrentView('settings')}
+              className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium"
+            >
+              <Settings className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Settings</span>
             </Button>
           </div>
         </div>
@@ -492,6 +569,52 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
+                  {/* Mood Context Pill */}
+                  {moodContext && (
+                    <div className="mb-6 p-4 bg-gradient-to-r from-pink-50 to-purple-50 rounded-xl border border-pink-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center space-x-2">
+                            <Heart className="w-4 h-4 text-pink-500" />
+                            <span className="text-2xl">{moodContext.emoji}</span>
+                            <span className="text-sm text-gray-600">{moodContext.mood}/5</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Brain className="w-4 h-4 text-orange-500" />
+                            <div className="flex space-x-1">
+                              {[1, 2, 3, 4, 5].map((level) => (
+                                <div
+                                  key={level}
+                                  className={`w-2 h-4 rounded-sm ${
+                                    level <= moodContext.stress
+                                      ? level <= 2 ? 'bg-green-500' : level <= 3 ? 'bg-yellow-500' : 'bg-red-500'
+                                      : 'bg-gray-200'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Zap className="w-4 h-4 text-blue-500" />
+                            <div className="flex space-x-1">
+                              {[1, 2, 3, 4, 5].map((level) => (
+                                <div
+                                  key={level}
+                                  className={`w-2 h-4 rounded-sm ${
+                                    level <= moodContext.energy
+                                      ? level <= 2 ? 'bg-gray-400' : level <= 3 ? 'bg-blue-400' : 'bg-purple-500'
+                                      : 'bg-gray-200'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                        <span className="text-xs text-gray-500">Today's mood</span>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="prose prose-sm max-w-none dark:prose-invert">
                     <div className="whitespace-pre-wrap text-gray-700 leading-relaxed font-light">
                       {interpretation}
@@ -506,9 +629,16 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
               </Card>
             )}
 
+            {/* Smart Prompts */}
+            {!interpretation && (
+              <div className="mb-6">
+                <SmartPrompts userId={user.id} />
+              </div>
+            )}
+
             {/* Tips */}
             {!interpretation && (
-              <Card className="mt-8 border-0 bg-white/10 backdrop-blur-lg rounded-2xl">
+              <Card className="mt-2 border-0 bg-white/10 backdrop-blur-lg rounded-2xl">
                 <CardContent className="pt-6">
                   <h3 className="font-serif text-lg text-white mb-4 text-center">Tips for Better Interpretations</h3>
                   <ul className="text-purple-100 space-y-2 text-sm font-light">
@@ -538,6 +668,12 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
         {/* History View */}
         {currentView === 'history' && (
           <div className="space-y-4">
+            {/* Filters */}
+            <HistoryFilters 
+              onFiltersChange={setHistoryFilters}
+              totalResults={filteredDreams.length}
+            />
+
             {/* Search */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-300 w-5 h-5" />
@@ -610,6 +746,10 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
                           {emotion}
                         </Badge>
                       ))}
+                    </div>
+                    <DreamEventLinker dreamId={dream.id} userId={user.id} />
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                      <SimilarDreams dreamId={dream.id} userId={user.id} />
                     </div>
                   </CardContent>
                 </Card>
@@ -715,6 +855,9 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
                   </Card>
                 )}
 
+                {/* Mood History */}
+                <MoodHistoryChart userId={user.id} days={30} />
+
                 {/* Sleep Tracking Chart */}
                 {patterns.sleepChartData.length > 0 && (
                   <Card className="border-0 bg-white/95 backdrop-blur-lg rounded-2xl shadow-lg">
@@ -782,6 +925,33 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
               </Card>
             )}
           </div>
+        )}
+
+        {/* Events View */}
+        {currentView === 'events' && (
+          <Card className="border-0 bg-white/95 backdrop-blur-lg rounded-2xl shadow-lg">
+            <CardContent className="pt-6">
+              <LifeEventsTimeline userId={user.id} />
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Insights View */}
+        {currentView === 'insights' && (
+          <Card className="border-0 bg-white/95 backdrop-blur-lg rounded-2xl shadow-lg">
+            <CardContent className="pt-6">
+              <InsightsView userId={user.id} />
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Settings View */}
+        {currentView === 'settings' && (
+          <Card className="border-0 bg-white/95 backdrop-blur-lg rounded-2xl shadow-lg">
+            <CardContent className="pt-6">
+              <SettingsView userId={user.id} userEmail={user.email} />
+            </CardContent>
+          </Card>
         )}
       </div>
     </div>
