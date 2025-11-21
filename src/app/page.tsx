@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, Mic, MicOff, Sparkles, Book, History, TrendingUp, Search, X, LogOut, Heart, Brain, Zap, Calendar, Lightbulb, Settings } from 'lucide-react'
+import { Loader2, Mic, MicOff, Sparkles, Book, BookOpen, History, TrendingUp, Search, X, LogOut, Heart, Brain, Zap, Calendar, Lightbulb, Settings } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 import { useAuth } from '@/contexts/auth-context'
 import { supabase } from '@/lib/supabase'
@@ -19,6 +19,7 @@ import SettingsView from '@/components/settings/SettingsView'
 import SimilarDreams from '@/components/dreams/SimilarDreams'
 import SmartPrompts from '@/components/prompts/SmartPrompts'
 import HistoryFilters, { FilterOptions } from '@/components/dreams/HistoryFilters'
+import JournalView from '@/components/journal/JournalView'
 
 interface Dream {
   id: string
@@ -49,7 +50,7 @@ export default function Home() {
   const [sleepHours, setSleepHours] = useState(7.5)
   const [isLoading, setIsLoading] = useState(false)
   const [isListening, setIsListening] = useState(false)
-  const [currentView, setCurrentView] = useState<'interpret' | 'history' | 'patterns' | 'events' | 'insights' | 'settings'>('interpret')
+  const [currentView, setCurrentView] = useState<'interpret' | 'history' | 'patterns' | 'journal' | 'events' | 'insights' | 'settings'>('interpret')
   const [dreams, setDreams] = useState<Dream[]>([])
   const [patterns, setPatterns] = useState<Patterns | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -429,6 +430,15 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
             >
               <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
               <span className="hidden sm:inline">Patterns</span>
+            </Button>
+            <Button
+              variant={currentView === 'journal' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setCurrentView('journal')}
+              className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium"
+            >
+              <BookOpen className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Journal</span>
             </Button>
             <Button
               variant={currentView === 'events' ? 'default' : 'ghost'}
@@ -925,6 +935,11 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
               </Card>
             )}
           </div>
+        )}
+
+        {/* Journal View */}
+        {currentView === 'journal' && (
+          <JournalView userId={user.id} />
         )}
 
         {/* Events View */}
