@@ -113,18 +113,34 @@ Additionally, after your interpretation, provide a JSON object with detected pat
     }
 
     // Extract interpretation and patterns
-    const interpretationMatch = fullResponse.match(/\{[\s\S]*\}$/)
-    const interpretation = interpretationMatch 
-      ? fullResponse.slice(0, interpretationMatch.index).trim()
-      : fullResponse
-
+    // Look for JSON block with symbols, emotions, and themes
+    const jsonMatch = fullResponse.match(/\{[\s\S]*?"symbols"[\s\S]*?"emotions"[\s\S]*?"themes"[\s\S]*?\}/)
+    
+    let interpretation = fullResponse
     let patterns = { symbols: [], emotions: [], themes: [] }
     
-    if (interpretationMatch) {
+    if (jsonMatch) {
+      // Remove the JSON block and any text after it from the interpretation
+      interpretation = fullResponse.slice(0, jsonMatch.index).trim()
+      
       try {
-        patterns = JSON.parse(interpretationMatch[0])
+        patterns = JSON.parse(jsonMatch[0])
       } catch (e) {
-        console.warn('Failed to parse patterns JSON')
+        console.warn('Failed to parse patterns JSON:', e)
+        // If JSON parsing fails, try to extract arrays manually
+        const symbolsMatch = jsonMatch[0].match(/"symbols"\s*:\s*\[([^\]]+)\]/)
+        const emotionsMatch = jsonMatch[0].match(/"emotions"\s*:\s*\[([^\]]+)\]/)
+        const themesMatch = jsonMatch[0].match(/"themes"\s*:\s*\[([^\]]+)\]/)
+        
+        if (symbolsMatch) {
+          patterns.symbols = symbolsMatch[1].split(',').map(s => s.trim().replace(/^"|"$/g, ''))
+        }
+        if (emotionsMatch) {
+          patterns.emotions = emotionsMatch[1].split(',').map(s => s.trim().replace(/^"|"$/g, ''))
+        }
+        if (themesMatch) {
+          patterns.themes = themesMatch[1].split(',').map(s => s.trim().replace(/^"|"$/g, ''))
+        }
       }
     }
 
