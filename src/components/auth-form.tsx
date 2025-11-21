@@ -73,82 +73,122 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto shadow-2xl border-0 bg-white/95 backdrop-blur-lg rounded-2xl">
-      <CardHeader className="text-center pb-6">
-        <CardTitle className="text-2xl font-serif text-gray-800">
-          {isSignUp ? 'Create Account' : 'Sign In'}
-        </CardTitle>
-        <CardDescription className="text-gray-600">
-          {isSignUp ? 'Start your dream journey with DREAMONEIR' : 'Welcome back to your dream journal'}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleAuth} className="space-y-4">
-          {isSignUp && (
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                type="text"
-                placeholder="Full name"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="pl-10 border-0 bg-gray-50 rounded-xl"
-                required={isSignUp}
-              />
+    <div className="w-full">
+      <Card className="border-0 bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden relative">
+        {/* Subtle gradient border effect */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-purple-500/20 rounded-3xl"></div>
+        <div className="absolute inset-[1px] bg-slate-900/40 backdrop-blur-xl rounded-3xl"></div>
+        
+        <div className="relative z-10">
+          <CardHeader className="text-center pb-6 pt-8 px-8">
+            <CardTitle className="text-2xl font-light text-white tracking-wide">
+              {isSignUp ? 'Begin Your Journey' : 'Welcome Back'}
+            </CardTitle>
+            <CardDescription className="text-slate-300/70 mt-2 text-sm">
+              {isSignUp ? 'Create your account to start exploring your dreams' : 'Continue your journey of self-discovery'}
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent className="px-8 pb-8">
+            <form onSubmit={handleAuth} className="space-y-5">
+              {isSignUp && (
+                <div className="group">
+                  <label className="block text-xs font-medium text-slate-300/80 mb-2 tracking-wide uppercase">
+                    Full Name
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4 transition-colors group-focus-within:text-purple-400" />
+                    <Input
+                      type="text"
+                      placeholder="Enter your name"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="pl-12 pr-4 py-6 border-0 bg-white/5 hover:bg-white/10 focus:bg-white/10 text-white placeholder:text-slate-400/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-purple-500/50"
+                      required={isSignUp}
+                    />
+                  </div>
+                </div>
+              )}
+              
+              <div className="group">
+                <label className="block text-xs font-medium text-slate-300/80 mb-2 tracking-wide uppercase">
+                  Email
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4 transition-colors group-focus-within:text-purple-400" />
+                  <Input
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-12 pr-4 py-6 border-0 bg-white/5 hover:bg-white/10 focus:bg-white/10 text-white placeholder:text-slate-400/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-purple-500/50"
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div className="group">
+                <label className="block text-xs font-medium text-slate-300/80 mb-2 tracking-wide uppercase">
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4 transition-colors group-focus-within:text-purple-400" />
+                  <Input
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-12 pr-4 py-6 border-0 bg-white/5 hover:bg-white/10 focus:bg-white/10 text-white placeholder:text-slate-400/50 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-purple-500/50"
+                    required
+                    minLength={6}
+                  />
+                </div>
+                {!isSignUp && (
+                  <div className="text-right mt-2">
+                    <button
+                      type="button"
+                      className="text-xs text-slate-400 hover:text-purple-300 transition-colors"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white font-medium py-6 rounded-xl shadow-lg shadow-purple-500/30 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-purple-500/50 active:scale-[0.98] mt-6 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    {isSignUp ? 'Creating Your Account...' : 'Signing You In...'}
+                  </>
+                ) : (
+                  <>
+                    {isSignUp ? 'Create Account' : 'Sign In'}
+                    <span className="ml-2 text-lg">→</span>
+                  </>
+                )}
+              </Button>
+            </form>
+
+            <div className="mt-8 pt-6 border-t border-white/10">
+              <p className="text-center text-sm text-slate-400">
+                {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+              </p>
+              <button
+                type="button"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="w-full mt-3 text-sm font-medium text-purple-300 hover:text-white transition-colors py-2 rounded-lg hover:bg-white/5"
+              >
+                {isSignUp ? 'Sign in instead' : 'Create a free account'}
+              </button>
             </div>
-          )}
-          
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <Input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="pl-10 border-0 bg-gray-50 rounded-xl"
-              required
-            />
-          </div>
-          
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <Input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="pl-10 border-0 bg-gray-50 rounded-xl"
-              required
-              minLength={6}
-            />
-          </div>
-
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium py-3 rounded-xl shadow-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {isSignUp ? 'Creating Account...' : 'Signing In...'}
-              </>
-            ) : (
-              isSignUp ? 'Create Account' : 'Sign In'
-            )}
-          </Button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <button
-            type="button"
-            onClick={() => setIsSignUp(!isSignUp)}
-            className="text-purple-600 hover:text-purple-700 text-sm font-medium transition-colors"
-          >
-            {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
-          </button>
+          </CardContent>
         </div>
-      </CardContent>
-    </Card>
+      </Card>
+    </div>
   )
 }

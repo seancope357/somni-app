@@ -331,31 +331,68 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
   // Show auth form if not authenticated
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 bg-black/20"></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-purple-950 relative overflow-hidden flex items-center justify-center">
+        {/* Animated background stars */}
         <div className="absolute inset-0">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-purple-500 rounded-full filter blur-3xl opacity-20 animate-pulse"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500 rounded-full filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500 rounded-full filter blur-3xl opacity-10 animate-pulse" style={{ animationDelay: '4s' }}></div>
+          {/* Primary orbs */}
+          <div className="absolute top-20 left-[10%] w-72 h-72 bg-indigo-500/30 rounded-full filter blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-[10%] w-80 h-80 bg-purple-500/20 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+          <div className="absolute top-[40%] left-[60%] w-64 h-64 bg-violet-500/25 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '3s' }}></div>
+          
+          {/* Floating particles */}
+          <div className="absolute top-[15%] left-[25%] w-2 h-2 bg-white/40 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+          <div className="absolute top-[70%] left-[80%] w-1.5 h-1.5 bg-purple-300/50 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute top-[25%] right-[15%] w-2 h-2 bg-indigo-300/40 rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute bottom-[30%] left-[15%] w-1 h-1 bg-white/30 rounded-full animate-pulse" style={{ animationDelay: '2.5s' }}></div>
         </div>
 
-        <div className="relative z-10 container mx-auto px-4 py-8 max-w-md">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-6xl md:text-7xl font-serif text-white mb-2 tracking-wide font-bold">
-              DREAMONEIR
-            </h1>
-            <div className="w-32 h-0.5 bg-gradient-to-r from-transparent via-purple-300 to-transparent mx-auto mb-3"></div>
-            <p className="text-purple-100 text-sm font-mono tracking-widest uppercase">
-              Dream Interpretation & Journal
-            </p>
-            <p className="text-purple-100 text-xs mt-3 font-light tracking-wide">
-              Decode Your Dreams
-            </p>
-          </div>
+        {/* Subtle grid overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px]"></div>
 
-          <AuthForm onAuthSuccess={() => {}} />
+        <div className="relative z-10 w-full px-4">
+          <div className="max-w-md mx-auto">
+            {/* Logo and branding */}
+            <div className="text-center mb-12 space-y-6">
+              {/* Icon */}
+              <div className="flex justify-center mb-6">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-400 to-purple-600 blur-xl opacity-60 rounded-full"></div>
+                  <div className="relative bg-gradient-to-br from-indigo-500 to-purple-600 p-5 rounded-2xl shadow-2xl transform hover:scale-105 transition-transform duration-300">
+                    <Sparkles className="w-10 h-10 text-white" />
+                  </div>
+                </div>
+              </div>
+              
+              {/* Brand name */}
+              <div className="space-y-3">
+                <h1 className="text-5xl md:text-6xl font-serif text-white tracking-[0.15em] font-light">
+                  DREAM<span className="font-semibold">ONEIR</span>
+                </h1>
+                <div className="flex items-center justify-center gap-3">
+                  <div className="h-px w-12 bg-gradient-to-r from-transparent via-purple-400 to-transparent"></div>
+                  <p className="text-purple-200/80 text-sm tracking-[0.3em] uppercase font-light">
+                    Journey Within
+                  </p>
+                  <div className="h-px w-12 bg-gradient-to-r from-transparent via-purple-400 to-transparent"></div>
+                </div>
+              </div>
+              
+              {/* Tagline */}
+              <p className="text-slate-300/70 text-base max-w-sm mx-auto leading-relaxed">
+                Unlock the wisdom of your subconscious through AI-powered dream interpretation
+              </p>
+            </div>
+
+            {/* Auth form */}
+            <AuthForm onAuthSuccess={() => {}} />
+            
+            {/* Footer message */}
+            <div className="text-center mt-8">
+              <p className="text-slate-400/60 text-sm">
+                Begin your journey of self-discovery
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     )
