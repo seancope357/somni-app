@@ -21,6 +21,7 @@ import SmartPrompts from '@/components/prompts/SmartPrompts'
 import HistoryFilters, { FilterOptions } from '@/components/dreams/HistoryFilters'
 import JournalView from '@/components/journal/JournalView'
 import DreamDetailsDialog from '@/components/dreams/DreamDetailsDialog'
+import { FormattedText } from '@/components/ui/formatted-text'
 
 interface Dream {
   id: string
@@ -628,11 +629,7 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
                     </div>
                   )}
 
-                  <div className="prose prose-sm max-w-none dark:prose-invert">
-                    <div className="whitespace-pre-wrap text-gray-700 leading-relaxed font-light">
-                      {interpretation}
-                    </div>
-                  </div>
+                  <FormattedText text={interpretation} className="text-gray-700" />
                   <div className="mt-8 flex flex-wrap gap-2 justify-center">
                     <Badge variant="secondary" className="bg-purple-100 text-purple-700 border-purple-200">Symbolic</Badge>
                     <Badge variant="secondary" className="bg-indigo-100 text-indigo-700 border-indigo-200">Psychological</Badge>

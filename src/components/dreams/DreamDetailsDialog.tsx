@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Calendar, Moon, Brain, Heart, Sparkles } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { FormattedText } from '@/components/ui/formatted-text'
 
 interface Dream {
   id: string
@@ -73,9 +74,7 @@ export default function DreamDetailsDialog({ dream, open, onClose }: DreamDetail
                   <Sparkles className="w-5 h-5 text-purple-600" />
                   <h3 className="font-semibold text-gray-800">Your Dream</h3>
                 </div>
-                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                  {dream.content}
-                </p>
+                <FormattedText text={dream.content} className="text-gray-700" />
               </CardContent>
             </Card>
 
@@ -86,9 +85,7 @@ export default function DreamDetailsDialog({ dream, open, onClose }: DreamDetail
                   <Brain className="w-5 h-5 text-indigo-600" />
                   <h3 className="font-semibold text-gray-800">Interpretation</h3>
                 </div>
-                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                  {dream.interpretation}
-                </p>
+                <FormattedText text={dream.interpretation} className="text-gray-700" />
               </CardContent>
             </Card>
 
