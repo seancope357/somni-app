@@ -268,10 +268,22 @@ export default function Home() {
   // Show loading state while checking authentication
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center">
-        <div className="text-white text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
-          <p>Loading DREAMONEIR...</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-purple-950 flex items-center justify-center relative overflow-hidden">
+        {/* Animated background */}
+        <div className="absolute inset-0">
+          <div className="absolute top-20 left-[10%] w-72 h-72 bg-indigo-500/30 rounded-full filter blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-[10%] w-80 h-80 bg-purple-500/20 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+        </div>
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px]"></div>
+        
+        <div className="relative z-10 text-center">
+          <img 
+            src="/oneir-icon.png" 
+            alt="DREAMONEIR" 
+            className="w-24 h-24 object-contain drop-shadow-2xl mx-auto mb-6 animate-pulse"
+          />
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-purple-400" />
+          <p className="text-slate-300 font-light tracking-wide">Loading DREAMONEIR...</p>
         </div>
       </div>
     )
@@ -280,7 +292,14 @@ export default function Home() {
   // Show setup message if Supabase is not configured
   if (!supabase) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-purple-950 flex items-center justify-center relative overflow-hidden">
+        {/* Animated background */}
+        <div className="absolute inset-0">
+          <div className="absolute top-20 left-[10%] w-72 h-72 bg-indigo-500/30 rounded-full filter blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-[10%] w-80 h-80 bg-purple-500/20 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+        </div>
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px]"></div>
+        
         <div className="relative z-10 container mx-auto px-4 py-8 max-w-md">
           <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-lg rounded-2xl">
             <CardHeader className="text-center pb-6">
@@ -353,13 +372,15 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
           <div className="max-w-md mx-auto">
             {/* Logo and branding */}
             <div className="text-center mb-12 space-y-6">
-              {/* Icon */}
+              {/* Logo */}
               <div className="flex justify-center mb-6">
                 <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-400 to-purple-600 blur-xl opacity-60 rounded-full"></div>
-                  <div className="relative bg-gradient-to-br from-indigo-500 to-purple-600 p-5 rounded-2xl shadow-2xl transform hover:scale-105 transition-transform duration-300">
-                    <Sparkles className="w-10 h-10 text-white" />
-                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-400 to-purple-600 blur-2xl opacity-50"></div>
+                  <img 
+                    src="/oneir-logo.png" 
+                    alt="DREAMONEIR" 
+                    className="relative w-32 h-32 object-contain drop-shadow-2xl transform hover:scale-105 transition-transform duration-300"
+                  />
                 </div>
               </div>
               
@@ -400,26 +421,45 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
 
   // Show main app if authenticated
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-purple-950 relative overflow-hidden">
       {/* Animated background elements */}
-      <div className="absolute inset-0 bg-black/20"></div>
       <div className="absolute inset-0">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-purple-500 rounded-full filter blur-3xl opacity-20 animate-pulse"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500 rounded-full filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500 rounded-full filter blur-3xl opacity-10 animate-pulse" style={{ animationDelay: '4s' }}></div>
+        <div className="absolute top-20 left-[10%] w-72 h-72 bg-indigo-500/30 rounded-full filter blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-[10%] w-80 h-80 bg-purple-500/20 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+        <div className="absolute top-[40%] left-[60%] w-64 h-64 bg-violet-500/25 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '3s' }}></div>
+        
+        {/* Floating particles */}
+        <div className="absolute top-[15%] left-[25%] w-2 h-2 bg-white/40 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+        <div className="absolute top-[70%] left-[80%] w-1.5 h-1.5 bg-purple-300/50 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-[25%] right-[15%] w-2 h-2 bg-indigo-300/40 rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute bottom-[30%] left-[15%] w-1 h-1 bg-white/30 rounded-full animate-pulse" style={{ animationDelay: '2.5s' }}></div>
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 py-4 sm:py-8 max-w-md">
+      {/* Subtle grid overlay */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px]"></div>
+
+      <div className="relative z-10 container mx-auto px-4 py-4 sm:py-8 max-w-4xl">
         {/* Header */}
-        <div className="text-center mb-4 sm:mb-8">
-          <h1 className="text-5xl sm:text-6xl md:text-7xl font-serif text-white mb-2 tracking-wide font-bold">
-            DREAMONEIR
+        <div className="text-center mb-6 sm:mb-10">
+          {/* Logo */}
+          <div className="flex justify-center mb-4">
+            <img 
+              src="/oneir-icon.png" 
+              alt="DREAMONEIR" 
+              className="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-2xl"
+            />
+          </div>
+          <h1 className="text-4xl sm:text-5xl font-serif text-white tracking-[0.15em] font-light mb-2">
+            DREAM<span className="font-semibold">ONEIR</span>
           </h1>
-          <div className="w-24 sm:w-32 h-0.5 bg-gradient-to-r from-transparent via-purple-300 to-transparent mx-auto mb-2 sm:mb-3"></div>
-          <p className="text-purple-100 text-xs sm:text-sm font-mono tracking-widest uppercase">
-            Dream Interpretation & Journal
-          </p>
-          <p className="text-purple-100 text-xs mt-2 sm:mt-3 font-light tracking-wide">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <div className="h-px w-8 bg-gradient-to-r from-transparent via-purple-400 to-transparent"></div>
+            <p className="text-purple-200/80 text-xs tracking-[0.25em] uppercase font-light">
+              Dream Journal
+            </p>
+            <div className="h-px w-8 bg-gradient-to-r from-transparent via-purple-400 to-transparent"></div>
+          </div>
+          <p className="text-slate-400/70 text-xs mt-2 font-light">
             Welcome back, {user.email?.split('@')[0]}
           </p>
         </div>
