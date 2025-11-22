@@ -277,11 +277,6 @@ export default function Home() {
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px]"></div>
         
         <div className="relative z-10 text-center">
-          <img 
-            src="/oneir-icon.png" 
-            alt="DREAMONEIR" 
-            className="w-24 h-24 object-contain drop-shadow-2xl mx-auto mb-6 animate-pulse"
-          />
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-purple-400" />
           <p className="text-slate-300 font-light tracking-wide">Loading DREAMONEIR...</p>
         </div>
@@ -372,18 +367,6 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
           <div className="max-w-md mx-auto">
             {/* Logo and branding */}
             <div className="text-center mb-12 space-y-6">
-              {/* Logo */}
-              <div className="flex justify-center mb-6">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-400 to-purple-600 blur-2xl opacity-50"></div>
-                  <img 
-                    src="/oneir-logo.png" 
-                    alt="DREAMONEIR" 
-                    className="relative w-32 h-32 object-contain drop-shadow-2xl transform hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-              </div>
-              
               {/* Brand name */}
               <div className="space-y-3">
                 <h1 className="text-5xl md:text-6xl font-serif text-white tracking-[0.15em] font-light">
@@ -441,14 +424,6 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
       <div className="relative z-10 container mx-auto px-4 py-4 sm:py-8 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-6 sm:mb-10">
-          {/* Logo */}
-          <div className="flex justify-center mb-4">
-            <img 
-              src="/oneir-icon.png" 
-              alt="DREAMONEIR" 
-              className="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-2xl"
-            />
-          </div>
           <h1 className="text-4xl sm:text-5xl font-serif text-white tracking-[0.15em] font-light mb-2">
             DREAM<span className="font-semibold">ONEIR</span>
           </h1>
