@@ -16,10 +16,57 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY!
 })
 
+// Helper function to parse multi-perspective interpretation
+function parseInterpretationResponse(responseText: string) {
+  // Extract perspectives using regex
+  const jungianMatch = responseText.match(/\*\*JUNGIAN PERSPECTIVE\*\*\n([\s\S]*?)\n\*\*FREUDIAN PERSPECTIVE\*\*/)
+  const freudianMatch = responseText.match(/\*\*FREUDIAN PERSPECTIVE\*\*\n([\s\S]*?)\n\*\*COGNITIVE\/EVOLUTIONARY PERSPECTIVE\*\*/)
+  const cognitiveMatch = responseText.match(/\*\*COGNITIVE\/EVOLUTIONARY PERSPECTIVE\*\*\n([\s\S]*?)\n\*\*SYNTHESIZED INTERPRETATION\*\*/)
+  const synthesizedMatch = responseText.match(/\*\*SYNTHESIZED INTERPRETATION\*\*\n([\s\S]*?)\n\*\*REFLECTION QUESTIONS\*\*/)
+  const questionsMatch = responseText.match(/\*\*REFLECTION QUESTIONS\*\*\n([\s\S]*?)(?:\n\{|$)/)
+  
+  // Extract JSON data
+  const jsonMatch = responseText.match(/\{[\s\S]*"symbols"[\s\S]*?\}/)
+  let structuredData = {
+    symbols: [],
+    emotions: [],
+    themes: [],
+    archetypal_figures: [],
+    cognitive_patterns: [],
+    wish_indicators: []
+  }
+  
+  if (jsonMatch) {
+    try {
+      structuredData = JSON.parse(jsonMatch[0])
+    } catch (e) {
+      console.error('Failed to parse JSON from interpretation:', e)
+    }
+  }
+  
+  // Parse reflection questions
+  let reflection_questions: string[] = []
+  if (questionsMatch && questionsMatch[1]) {
+    reflection_questions = questionsMatch[1]
+      .split('\n')
+      .filter(q => q.trim().startsWith('-'))
+      .map(q => q.trim().substring(1).trim())
+  }
+  
+  return {
+    fullInterpretation: responseText,
+    jungian_analysis: jungianMatch ? jungianMatch[1].trim() : '',
+    freudian_analysis: freudianMatch ? freudianMatch[1].trim() : '',
+    cognitive_analysis: cognitiveMatch ? cognitiveMatch[1].trim() : '',
+    synthesized_analysis: synthesizedMatch ? synthesizedMatch[1].trim() : '',
+    reflection_questions,
+    ...structuredData
+  }
+}
+
 export async function POST(request: Request) {
-  console.log('=== Dream Interpretation Request Started ===')
+  console.log('=== Multi-Perspective Dream Interpretation Request Started ===')
   console.log('GROQ_API_KEY exists:', !!process.env.GROQ_API_KEY)
-  console.log('GROQ_API_KEY length:', process.env.GROQ_API_KEY?.length)
   console.log('SUPABASE_URL exists:', !!process.env.NEXT_PUBLIC_SUPABASE_URL)
   
   try {
@@ -53,48 +100,109 @@ export async function POST(request: Request) {
 
     // Create enhanced prompt that considers sleep hours
     const sleepContext = sleepHours ? 
-      `The dreamer had ${sleepHours} hours of sleep before this dream. ${sleepHours < 6 ? 'This is relatively little sleep, which may influence dream content and recall. ' : sleepHours > 9 ? 'This is more sleep than average, which may affect dream vividness and complexity. ' : 'This is a normal amount of sleep. '}` : ''
+      `Sleep Context: ${sleepHours} hours of sleep. ${sleepHours < 6 ? 'Relatively little sleep, which may influence dream content and recall.' : sleepHours > 9 ? 'More sleep than average, which may affect dream vividness and complexity.' : 'Normal amount of sleep.'}` : ''
     
     // Create mood context if available
     const moodEmojis = ['😢', '😕', '😐', '😊', '😄']
     const moodContext = moodLog ? 
-      `\n\nToday's Emotional Context: The dreamer logged their mood today as ${moodEmojis[moodLog.mood - 1]} (${moodLog.mood}/5), with stress level ${moodLog.stress}/5 and energy level ${moodLog.energy}/5.${moodLog.notes ? ` Note: "${moodLog.notes}"` : ''} Consider how these emotional states might have influenced the dream content, symbolism, and overall tone.` : ''
+      `Mood Context: The dreamer's current state - Mood: ${moodEmojis[moodLog.mood - 1]} (${moodLog.mood}/5), Stress: ${moodLog.stress}/5, Energy: ${moodLog.energy}/5.${moodLog.notes ? ` Note: "${moodLog.notes}"` : ''}` : ''
 
-    // Get interpretation using Groq
-    console.log('Calling Groq API...')
+    // Get interpretation using Groq with multi-perspective prompt
+    console.log('Calling Groq API for multi-perspective interpretation...')
     const completion = await groq.chat.completions.create({
       model: 'llama-3.3-70b-versatile',
       messages: [
         {
           role: 'system',
-          content: `You are a professional dream interpreter with deep knowledge of psychology, symbolism, and various cultural perspectives on dreams. 
-          
-${sleepContext}${moodContext}
+          content: `You are an expert dream analyst trained in multiple schools of psychological thought. Your role is to provide comprehensive, multi-perspective dream interpretations.
 
-Your task is to provide thoughtful, insightful interpretations of dreams while being:
+## Your Approach
 
-- Respectful and supportive
-- Culturally sensitive 
-- Psychologically informed
-- Focused on personal growth and self-reflection
-- Careful not to make definitive predictions about future
-- Considerate of how sleep duration may affect dream content and recall
+You will analyze each dream from THREE distinct psychological perspectives:
 
-Structure your interpretation with:
-1. A brief summary of dream's main themes
-2. Analysis of key symbols and their potential meanings
-3. Emotional and psychological insights
-4. How sleep duration might influence the dream
-5. Practical guidance for self-reflection
-6. Positive, empowering takeaways
+1. **JUNGIAN PERSPECTIVE**: Focus on archetypes, collective unconscious, individuation, compensation, and symbolic meaning within personal and cultural mythology.
 
-Always maintain that dream interpretation is subjective and the dreamer's own intuition is most important.
+2. **FREUDIAN PERSPECTIVE**: Focus on wish fulfillment, manifest vs. latent content, unconscious conflicts, repressed desires, and dream-work mechanisms (condensation, displacement, symbolization).
 
-Additionally, after your interpretation, provide a JSON object with detected patterns:
+3. **COGNITIVE/EVOLUTIONARY PERSPECTIVE**: Focus on continuity with waking life, cognitive patterns, problem-solving, threat simulation, memory consolidation, and emotional processing.
+
+4. **SYNTHESIZED INTERPRETATION**: Integrate insights from all three perspectives, highlighting common themes, complementary insights, and practical wisdom.
+
+## Key Principles
+
+### Jungian Analysis
+- Identify archetypal figures (Shadow, Anima/Animus, Self, Wise Old Man, Great Mother, Trickster, Hero)
+- Consider compensatory function (how dream balances conscious attitudes)
+- Explore collective vs. personal symbolism
+- Relate to life stage and individuation process
+- Use amplification (expand symbols through mythology, culture, personal associations)
+
+### Freudian Analysis  
+- Identify potential wish fulfillment (especially repressed desires)
+- Distinguish manifest content (surface narrative) from latent content (underlying meaning)
+- Look for dream-work mechanisms: condensation, displacement, symbolization
+- Consider childhood origins and early experiences
+- Examine sexual/aggressive content and defense mechanisms
+- Note: Symbols are personal, not universal
+
+### Cognitive/Evolutionary Analysis
+- Apply Calvin Hall's five conceptions: self, others, world, penalties, conflict
+- Assess continuity with waking concerns and preoccupations
+- Identify cognitive patterns, schemas, and biases
+- Consider threat simulation (Revonsuo): rehearsal of danger responses
+- Examine problem-solving and memory consolidation
+- Analyze emotional processing and regulation
+
+### Synthesis
+- Find common threads across perspectives
+- Highlight complementary insights
+- Provide actionable wisdom
+- Suggest reflection questions
+- Maintain humility: interpretations are possibilities, not certainties
+
+## Ethical Guidelines
+- Never claim definitive interpretations
+- Frame insights as possibilities for exploration
+- Emphasize the dreamer's personal associations are most important
+- Acknowledge cultural variations in symbolism
+- Handle trauma/nightmare content with sensitivity
+- Remind users this is not a replacement for professional mental health care
+
+## Context Integration
+${sleepContext}
+${moodContext}
+
+## Output Format
+
+Provide your interpretation in this structure:
+
+**JUNGIAN PERSPECTIVE**
+[2-3 paragraph analysis from Jungian viewpoint]
+
+**FREUDIAN PERSPECTIVE**
+[2-3 paragraph analysis from Freudian viewpoint]
+
+**COGNITIVE/EVOLUTIONARY PERSPECTIVE**
+[2-3 paragraph analysis from Cognitive/Evolutionary viewpoint]
+
+**SYNTHESIZED INTERPRETATION**
+[2-3 paragraphs integrating all perspectives with practical insights]
+
+**REFLECTION QUESTIONS**
+- [Question 1]
+- [Question 2]
+- [Question 3]
+- [Question 4]
+- [Question 5]
+
+Then provide a JSON object with:
 {
   "symbols": ["symbol1", "symbol2"],
-  "emotions": ["emotion1", "emotion2"], 
-  "themes": ["theme1", "theme2"]
+  "emotions": ["emotion1", "emotion2"],
+  "themes": ["theme1", "theme2"],
+  "archetypal_figures": ["archetype1", "archetype2"],
+  "cognitive_patterns": ["pattern1", "pattern2"],
+  "wish_indicators": ["wish1", "wish2"]
 }`
         },
         {
@@ -103,7 +211,7 @@ Additionally, after your interpretation, provide a JSON object with detected pat
         }
       ],
       temperature: 0.7,
-      max_tokens: 2000
+      max_tokens: 3000 // Increased for multi-perspective analysis
     })
 
     const fullResponse = completion.choices[0]?.message?.content
@@ -112,51 +220,31 @@ Additionally, after your interpretation, provide a JSON object with detected pat
       throw new Error('No interpretation received from AI')
     }
 
-    // Extract interpretation and patterns
-    // Look for JSON block with symbols, emotions, and themes
-    const jsonMatch = fullResponse.match(/\{[\s\S]*?"symbols"[\s\S]*?"emotions"[\s\S]*?"themes"[\s\S]*?\}/)
-    
-    let interpretation = fullResponse
-    let patterns = { symbols: [], emotions: [], themes: [] }
-    
-    if (jsonMatch) {
-      // Remove the JSON block and any text after it from the interpretation
-      interpretation = fullResponse.slice(0, jsonMatch.index).trim()
-      
-      try {
-        patterns = JSON.parse(jsonMatch[0])
-      } catch (e) {
-        console.warn('Failed to parse patterns JSON:', e)
-        // If JSON parsing fails, try to extract arrays manually
-        const symbolsMatch = jsonMatch[0].match(/"symbols"\s*:\s*\[([^\]]+)\]/)
-        const emotionsMatch = jsonMatch[0].match(/"emotions"\s*:\s*\[([^\]]+)\]/)
-        const themesMatch = jsonMatch[0].match(/"themes"\s*:\s*\[([^\]]+)\]/)
-        
-        if (symbolsMatch) {
-          patterns.symbols = symbolsMatch[1].split(',').map(s => s.trim().replace(/^"|"$/g, ''))
-        }
-        if (emotionsMatch) {
-          patterns.emotions = emotionsMatch[1].split(',').map(s => s.trim().replace(/^"|"$/g, ''))
-        }
-        if (themesMatch) {
-          patterns.themes = themesMatch[1].split(',').map(s => s.trim().replace(/^"|"$/g, ''))
-        }
-      }
-    }
+    console.log('Groq response received, parsing...')
+    const parsedData = parseInterpretationResponse(fullResponse)
 
     // Save to database if requested
     let savedDream = null
     if (saveToHistory) {
+      console.log('Saving dream to database...')
       const { data, error } = await supabase
         .from('dreams')
         .insert({
           user_id: userId,
           content: dream,
-          interpretation: interpretation,
+          interpretation: parsedData.fullInterpretation,
+          jungian_analysis: parsedData.jungian_analysis,
+          freudian_analysis: parsedData.freudian_analysis,
+          cognitive_analysis: parsedData.cognitive_analysis,
+          synthesized_analysis: parsedData.synthesized_analysis,
           sleep_hours: sleepHours || null,
-          symbols: patterns.symbols || [],
-          emotions: patterns.emotions || [],
-          themes: patterns.themes || [],
+          symbols: parsedData.symbols || [],
+          emotions: parsedData.emotions || [],
+          themes: parsedData.themes || [],
+          archetypal_figures: parsedData.archetypal_figures || [],
+          cognitive_patterns: parsedData.cognitive_patterns || [],
+          wish_indicators: parsedData.wish_indicators || [],
+          reflection_questions: parsedData.reflection_questions || [],
           mood_log_id: moodLog?.id || null
         })
         .select()
@@ -168,11 +256,27 @@ Additionally, after your interpretation, provide a JSON object with detected pat
       }
 
       savedDream = data
+      console.log('Dream saved successfully')
     }
 
     return NextResponse.json({ 
-      interpretation,
-      patterns,
+      interpretation: parsedData.synthesized_analysis, // Return synthesis as main interpretation
+      fullInterpretation: parsedData.fullInterpretation,
+      perspectives: {
+        jungian: parsedData.jungian_analysis,
+        freudian: parsedData.freudian_analysis,
+        cognitive: parsedData.cognitive_analysis,
+        synthesized: parsedData.synthesized_analysis
+      },
+      patterns: {
+        symbols: parsedData.symbols,
+        emotions: parsedData.emotions,
+        themes: parsedData.themes,
+        archetypal_figures: parsedData.archetypal_figures,
+        cognitive_patterns: parsedData.cognitive_patterns,
+        wish_indicators: parsedData.wish_indicators
+      },
+      reflection_questions: parsedData.reflection_questions,
       savedDream,
       moodContext: moodLog ? {
         mood: moodLog.mood,
