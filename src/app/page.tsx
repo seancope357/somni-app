@@ -27,12 +27,22 @@ interface Dream {
   id: string
   content: string
   interpretation: string
+  jungian_analysis?: string
+  freudian_analysis?: string
+  cognitive_analysis?: string
+  synthesized_analysis?: string
   sleep_hours: number | null
   symbols: string[]
   emotions: string[]
   themes: string[]
+  archetypal_figures?: string[]
+  cognitive_patterns?: string[]
+  wish_indicators?: string[]
+  reflection_questions?: string[]
   created_at: string
 }
+
+type PerspectiveType = 'synthesized' | 'jungian' | 'freudian' | 'cognitive'
 
 interface Patterns {
   totalDreams: number
@@ -65,6 +75,53 @@ export default function Home() {
   })
   const [selectedDream, setSelectedDream] = useState<Dream | null>(null)
   const [showDreamDialog, setShowDreamDialog] = useState(false)
+  const [perspectives, setPerspectives] = useState<{
+    jungian: string
+    freudian: string
+    cognitive: string
+    synthesized: string
+  } | null>(null)
+  const [reflectionQuestions, setReflectionQuestions] = useState<string[]>([])
+  const [preferredPerspective, setPreferredPerspective] = useState<PerspectiveType>('synthesized')
+
+  // Load preferred perspective from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('preferredPerspective')
+    if (saved && ['synthesized', 'jungian', 'freudian', 'cognitive'].includes(saved)) {
+      setPreferredPerspective(saved as PerspectiveType)
+    }
+  }, [])
+
+  // Helper functions for perspective management
+  const getPerspectiveLabel = (perspective: PerspectiveType): string => {
+    const labels: Record<PerspectiveType, string> = {
+      synthesized: 'Synthesized',
+      jungian: 'Jungian',
+      freudian: 'Freudian',
+      cognitive: 'Cognitive'
+    }
+    return labels[perspective]
+  }
+
+  const getPerspectiveDescription = (perspective: PerspectiveType): string => {
+    const descriptions: Record<PerspectiveType, string> = {
+      synthesized: 'Integrated analysis from all perspectives',
+      jungian: 'Archetypal symbols and collective unconscious',
+      freudian: 'Unconscious desires and wish fulfillment',
+      cognitive: 'Memory consolidation and problem-solving'
+    }
+    return descriptions[perspective]
+  }
+
+  const getDisplayedInterpretation = (): string => {
+    if (!perspectives) return interpretation
+    return perspectives[preferredPerspective] || interpretation
+  }
+
+  const updatePreferredPerspective = (newPerspective: PerspectiveType) => {
+    setPreferredPerspective(newPerspective)
+    localStorage.setItem('preferredPerspective', newPerspective)
+  }
 
   useEffect(() => {
     if (user && currentView === 'history') {
@@ -144,6 +201,14 @@ export default function Home() {
       const data = await response.json()
       setInterpretation(data.interpretation)
       setMoodContext(data.moodContext)
+      
+      // Store perspectives and reflection questions
+      if (data.perspectives) {
+        setPerspectives(data.perspectives)
+      }
+      if (data.reflection_questions) {
+        setReflectionQuestions(data.reflection_questions)
+      }
       
       if (saveToHistory && data.savedDream) {
         toast({
@@ -633,6 +698,28 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
                   <CardDescription className="text-center text-gray-600 font-light">
                     What your dream reveals
                   </CardDescription>
+                  
+                  {/* Perspective Selector */}
+                  {perspectives && (
+                    <div className="mt-4 flex flex-col items-center space-y-2">
+                      <label className="text-xs text-gray-500 font-medium">
+                        Analysis Perspective
+                      </label>
+                      <select
+                        value={preferredPerspective}
+                        onChange={(e) => updatePreferredPerspective(e.target.value as PerspectiveType)}
+                        className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+                      >
+                        <option value="synthesized">Synthesized</option>
+                        <option value="jungian">Jungian</option>
+                        <option value="freudian">Freudian</option>
+                        <option value="cognitive">Cognitive</option>
+                      </select>
+                      <p className="text-xs text-gray-500 text-center max-w-md">
+                        {getPerspectiveDescription(preferredPerspective)}
+                      </p>
+                    </div>
+                  )}
                 </CardHeader>
                 <CardContent>
                   {/* Mood Context Pill */}
@@ -681,11 +768,46 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
                     </div>
                   )}
 
-                  <FormattedText text={interpretation} className="text-gray-700" />
+                  <FormattedText text={getDisplayedInterpretation()} className="text-gray-700" />
+                  
+                  {/* Reflection Questions */}
+                  {reflectionQuestions.length > 0 && (
+                    <div className="mt-6 p-4 bg-purple-50 rounded-xl border border-purple-200">
+                      <div className="flex items-center space-x-2 mb-3">
+                        <Lightbulb className="w-5 h-5 text-purple-600" />
+                        <h4 className="font-medium text-purple-900">Reflection Questions</h4>
+                      </div>
+                      <ul className="space-y-2">
+                        {reflectionQuestions.map((question, index) => (
+                          <li key={index} className="text-sm text-purple-800 flex items-start">
+                            <span className="text-purple-400 mr-2 mt-0.5">•</span>
+                            <span>{question}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
                   <div className="mt-8 flex flex-wrap gap-2 justify-center">
-                    <Badge variant="secondary" className="bg-purple-100 text-purple-700 border-purple-200">Symbolic</Badge>
-                    <Badge variant="secondary" className="bg-indigo-100 text-indigo-700 border-indigo-200">Psychological</Badge>
-                    <Badge variant="secondary" className="bg-pink-100 text-pink-700 border-pink-200">Insightful</Badge>
+                    {perspectives ? (
+                      <>
+                        <Badge variant="secondary" className="bg-purple-100 text-purple-700 border-purple-200">
+                          {getPerspectiveLabel(preferredPerspective)}
+                        </Badge>
+                        <Badge variant="secondary" className="bg-indigo-100 text-indigo-700 border-indigo-200">
+                          Multi-Perspective
+                        </Badge>
+                        <Badge variant="secondary" className="bg-pink-100 text-pink-700 border-pink-200">
+                          AI-Enhanced
+                        </Badge>
+                      </>
+                    ) : (
+                      <>
+                        <Badge variant="secondary" className="bg-purple-100 text-purple-700 border-purple-200">Symbolic</Badge>
+                        <Badge variant="secondary" className="bg-indigo-100 text-indigo-700 border-indigo-200">Psychological</Badge>
+                        <Badge variant="secondary" className="bg-pink-100 text-pink-700 border-pink-200">Insightful</Badge>
+                      </>
+                    )}
                   </div>
                 </CardContent>
               </Card>
