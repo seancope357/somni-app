@@ -8,7 +8,9 @@ interface AuthContextType {
   user: User | null
   session: Session | null
   loading: boolean
+  needsOnboarding: boolean
   signOut: () => Promise<void>
+  refreshOnboardingStatus: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -17,6 +19,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const [needsOnboarding, setNeedsOnboarding] = useState(false)
+
+  // Check onboarding status
+  const checkOnboardingStatus = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/onboarding?userId=${userId}`)
+      const { data } = await response.json()
+
+      // User needs onboarding if they don't have a record or it's not completed
+      setNeedsOnboarding(!data || !data.completed)
+    } catch (error) {
+      console.error('Error checking onboarding status:', error)
+      setNeedsOnboarding(true) // Default to showing onboarding on error
+    }
+  }
+
+  const refreshOnboardingStatus = async () => {
+    if (user?.id) {
+      await checkOnboardingStatus(user.id)
+    }
+  }
 
   useEffect(() => {
     // If Supabase is not configured, show setup message
@@ -30,6 +53,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data: { session } } = await supabase.auth.getSession()
       setSession(session)
       setUser(session?.user ?? null)
+
+      // Check onboarding status if user exists
+      if (session?.user) {
+        await checkOnboardingStatus(session.user.id)
+      }
+
       setLoading(false)
     }
 
@@ -40,6 +69,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async (event, session) => {
         setSession(session)
         setUser(session?.user ?? null)
+
+        // Check onboarding status on auth change
+        if (session?.user) {
+          await checkOnboardingStatus(session.user.id)
+        } else {
+          setNeedsOnboarding(false)
+        }
+
         setLoading(false)
       }
     )
@@ -57,7 +94,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user,
     session,
     loading,
+    needsOnboarding,
     signOut,
+    refreshOnboardingStatus,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

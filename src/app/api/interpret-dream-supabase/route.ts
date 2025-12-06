@@ -87,6 +87,15 @@ export async function POST(request: Request) {
       )
     }
 
+    // Fetch user's onboarding data for personalization
+    const { data: onboardingData } = await supabase
+      .from('user_onboarding')
+      .select('*')
+      .eq('user_id', userId)
+      .single()
+
+    console.log('Onboarding data:', onboardingData ? 'Found' : 'Not found')
+
     // Fetch today's mood log to link with dream
     const today = new Date().toISOString().split('T')[0]
     const { data: moodLog } = await supabase
@@ -95,7 +104,7 @@ export async function POST(request: Request) {
       .eq('user_id', userId)
       .eq('log_date', today)
       .single()
-    
+
     console.log('Mood log for today:', moodLog ? 'Found' : 'Not found')
 
     // Create enhanced prompt that considers sleep hours
@@ -104,8 +113,80 @@ export async function POST(request: Request) {
     
     // Create mood context if available
     const moodEmojis = ['😢', '😕', '😐', '😊', '😄']
-    const moodContext = moodLog ? 
+    const moodContext = moodLog ?
       `Mood Context: The dreamer's current state - Mood: ${moodEmojis[moodLog.mood - 1]} (${moodLog.mood}/5), Stress: ${moodLog.stress}/5, Energy: ${moodLog.energy}/5.${moodLog.notes ? ` Note: "${moodLog.notes}"` : ''}` : ''
+
+    // Create personalization context from onboarding data
+    let personalizationContext = ''
+    if (onboardingData) {
+      const parts: string[] = []
+
+      if (onboardingData.preferred_name) {
+        parts.push(`The dreamer prefers to be called ${onboardingData.preferred_name}.`)
+      }
+
+      if (onboardingData.communication_style) {
+        const styleMap = {
+          'direct': 'direct and straightforward',
+          'gentle': 'gentle and empathetic',
+          'balanced': 'balanced between direct and gentle'
+        }
+        parts.push(`Communication preference: ${styleMap[onboardingData.communication_style] || 'balanced'}.`)
+      }
+
+      if (onboardingData.primary_goals && onboardingData.primary_goals.length > 0) {
+        parts.push(`Primary goals: ${onboardingData.primary_goals.join(', ')}.`)
+      }
+
+      if (onboardingData.dream_recall_frequency) {
+        parts.push(`Dream recall frequency: ${onboardingData.dream_recall_frequency}.`)
+      }
+
+      if (onboardingData.recurring_themes && onboardingData.recurring_themes.length > 0) {
+        parts.push(`Common recurring themes in their dreams: ${onboardingData.recurring_themes.join(', ')}.`)
+      }
+
+      if (onboardingData.current_life_context) {
+        parts.push(`Current life context: ${onboardingData.current_life_context}`)
+      }
+
+      if (onboardingData.major_life_events && onboardingData.major_life_events.length > 0) {
+        parts.push(`Recent significant life events: ${onboardingData.major_life_events.join(', ')}.`)
+      }
+
+      if (onboardingData.stress_level) {
+        parts.push(`Current stress level: ${onboardingData.stress_level}.`)
+      }
+
+      if (onboardingData.primary_stressors && onboardingData.primary_stressors.length > 0) {
+        parts.push(`Primary stressors: ${onboardingData.primary_stressors.join(', ')}.`)
+      }
+
+      if (onboardingData.topics_to_avoid && onboardingData.topics_to_avoid.length > 0) {
+        parts.push(`IMPORTANT - Topics to avoid or handle sensitively: ${onboardingData.topics_to_avoid.join(', ')}.`)
+      }
+
+      if (onboardingData.comfort_with_depth) {
+        const depthMap = {
+          'surface': 'Keep interpretations relatively light and surface-level.',
+          'moderate': 'Provide moderately deep analysis with some psychological exploration.',
+          'deep': 'Provide deep, thorough psychological analysis.'
+        }
+        parts.push(depthMap[onboardingData.comfort_with_depth] || '')
+      }
+
+      if (onboardingData.therapy_experience) {
+        parts.push('The dreamer has therapy experience and may be familiar with psychological concepts.')
+      }
+
+      if (onboardingData.meditation_practice) {
+        parts.push('The dreamer practices meditation.')
+      }
+
+      if (parts.length > 0) {
+        personalizationContext = 'Personal Context: ' + parts.join(' ')
+      }
+    }
 
     // Get interpretation using Groq with multi-perspective prompt
     console.log('Calling Groq API for multi-perspective interpretation...')
@@ -207,7 +288,15 @@ Then provide a JSON object with:
         },
         {
           role: 'user',
-          content: `Please interpret this dream: ${dream}`
+          content: `Please interpret this dream:
+
+${dream}
+
+${sleepContext}
+${moodContext}
+${personalizationContext}
+
+Use the personal context provided to tailor your interpretation to this specific individual's life situation, communication preferences, and psychological needs. Be sensitive to their boundaries and goals.`
         }
       ],
       temperature: 0.7,

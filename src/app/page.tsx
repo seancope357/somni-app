@@ -10,6 +10,7 @@ import { toast } from '@/hooks/use-toast'
 import { useAuth } from '@/contexts/auth-context'
 import { supabase } from '@/lib/supabase'
 import AuthForm from '@/components/auth-form'
+import OnboardingFlow from '@/components/onboarding/OnboardingFlow'
 import TodayMoodWidget from '@/components/mood/TodayMoodWidget'
 import MoodHistoryChart from '@/components/mood/MoodHistoryChart'
 import LifeEventsTimeline from '@/components/events/LifeEventsTimeline'
@@ -22,6 +23,7 @@ import HistoryFilters, { FilterOptions } from '@/components/dreams/HistoryFilter
 import JournalView from '@/components/journal/JournalView'
 import DreamDetailsDialog from '@/components/dreams/DreamDetailsDialog'
 import { FormattedText } from '@/components/ui/formatted-text'
+import { OnboardingData } from '@/types/onboarding'
 
 interface Dream {
   id: string
@@ -55,7 +57,7 @@ interface Patterns {
 }
 
 export default function Home() {
-  const { user, loading, signOut } = useAuth()
+  const { user, loading, needsOnboarding, signOut, refreshOnboardingStatus } = useAuth()
   const [dreamText, setDreamText] = useState('')
   const [interpretation, setInterpretation] = useState('')
   const [moodContext, setMoodContext] = useState<{ mood: number; stress: number; energy: number; emoji: string } | null>(null)
@@ -407,6 +409,29 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
     )
   }
 
+  // Show onboarding if user is authenticated but hasn't completed onboarding
+  if (user && needsOnboarding) {
+    return (
+      <OnboardingFlow
+        userId={user.id}
+        onComplete={async (data: OnboardingData) => {
+          await refreshOnboardingStatus()
+          toast({
+            title: 'Welcome to DREAMONEIR!',
+            description: 'Your personalized journey begins now.',
+          })
+        }}
+        onSkip={async () => {
+          await refreshOnboardingStatus()
+          toast({
+            title: 'Onboarding skipped',
+            description: 'You can complete your profile anytime in Settings.',
+          })
+        }}
+      />
+    )
+  }
+
   // Show auth form if not authenticated
   if (!user) {
     return (
@@ -417,7 +442,7 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
           <div className="absolute top-20 left-[10%] w-72 h-72 bg-indigo-500/30 rounded-full filter blur-3xl animate-pulse"></div>
           <div className="absolute bottom-20 right-[10%] w-80 h-80 bg-purple-500/20 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }}></div>
           <div className="absolute top-[40%] left-[60%] w-64 h-64 bg-violet-500/25 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '3s' }}></div>
-          
+
           {/* Floating particles */}
           <div className="absolute top-[15%] left-[25%] w-2 h-2 bg-white/40 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
           <div className="absolute top-[70%] left-[80%] w-1.5 h-1.5 bg-purple-300/50 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
@@ -445,7 +470,7 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
                   <div className="h-px w-12 bg-gradient-to-r from-transparent via-purple-400 to-transparent"></div>
                 </div>
               </div>
-              
+
               {/* Tagline */}
               <p className="text-slate-300/70 text-base max-w-sm mx-auto leading-relaxed">
                 Unlock the wisdom of your subconscious through AI-powered dream interpretation
