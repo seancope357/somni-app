@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { Loader2, Send, Skip, ArrowLeft, Brain, Moon, Heart, Sparkles } from 'lucide-react'
+import { Loader2, Send, SkipForward, ArrowLeft, Brain, Moon, Heart, Sparkles } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 import { OnboardingData, OnboardingStep, ConversationMessage } from '@/types/onboarding'
 import { cn } from '@/lib/utils'
@@ -240,7 +240,7 @@ export default function OnboardingFlow({ userId, onComplete, onSkip }: Onboardin
                   onClick={handleSkip}
                   className="text-slate-400 hover:text-white"
                 >
-                  <Skip className="w-4 h-4 mr-2" />
+                  <SkipForward className="w-4 h-4 mr-2" />
                   Skip for now
                 </Button>
               )}
