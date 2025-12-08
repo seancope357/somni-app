@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, Mic, MicOff, Sparkles, Book, BookOpen, History, TrendingUp, Search, X, LogOut, Heart, Brain, Zap, Calendar, Lightbulb, Settings } from 'lucide-react'
+import { Loader2, Mic, MicOff, Sparkles, Book, BookOpen, History, TrendingUp, Search, X, LogOut, Heart, Brain, Zap, Calendar, Lightbulb, Settings, Mail, CalendarDays } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 import { useAuth } from '@/contexts/auth-context'
 import { supabase } from '@/lib/supabase'
@@ -24,6 +24,8 @@ import JournalView from '@/components/journal/JournalView'
 import DreamDetailsDialog from '@/components/dreams/DreamDetailsDialog'
 import { FormattedText } from '@/components/ui/formatted-text'
 import { OnboardingData } from '@/types/onboarding'
+import WeeklyDigestView from '@/components/digest/WeeklyDigestView'
+import DreamTimeline from '@/components/timeline/DreamTimeline'
 
 interface Dream {
   id: string
@@ -64,7 +66,7 @@ export default function Home() {
   const [sleepHours, setSleepHours] = useState(7.5)
   const [isLoading, setIsLoading] = useState(false)
   const [isListening, setIsListening] = useState(false)
-  const [currentView, setCurrentView] = useState<'interpret' | 'history' | 'patterns' | 'journal' | 'events' | 'insights' | 'settings'>('interpret')
+  const [currentView, setCurrentView] = useState<'interpret' | 'history' | 'patterns' | 'journal' | 'events' | 'insights' | 'settings' | 'digest' | 'timeline'>('interpret')
   const [dreams, setDreams] = useState<Dream[]>([])
   const [patterns, setPatterns] = useState<Patterns | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -603,6 +605,24 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
             >
               <Lightbulb className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
               <span className="hidden sm:inline">Insights</span>
+            </Button>
+            <Button
+              variant={currentView === 'digest' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setCurrentView('digest')}
+              className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium"
+            >
+              <Mail className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Digest</span>
+            </Button>
+            <Button
+              variant={currentView === 'timeline' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setCurrentView('timeline')}
+              className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium"
+            >
+              <CalendarDays className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Timeline</span>
             </Button>
             <Button
               variant={currentView === 'settings' ? 'default' : 'ghost'}
@@ -1180,6 +1200,16 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
               <SettingsView userId={user.id} userEmail={user.email} />
             </CardContent>
           </Card>
+        )}
+
+        {/* Weekly Digest View */}
+        {currentView === 'digest' && (
+          <WeeklyDigestView userId={user.id} />
+        )}
+
+        {/* Dream Timeline View */}
+        {currentView === 'timeline' && (
+          <DreamTimeline userId={user.id} />
         )}
       </div>
     </div>
