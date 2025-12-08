@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, Mic, MicOff, Sparkles, Book, BookOpen, History, TrendingUp, Search, X, LogOut, Heart, Brain, Zap, Calendar, Lightbulb, Settings, Mail, CalendarDays, MessageCircle, Home } from 'lucide-react'
+import { Loader2, Mic, MicOff, Sparkles, Book, BookOpen, History, TrendingUp, Search, X, LogOut, Heart, Brain, Zap, Calendar, Lightbulb, Settings, Mail, CalendarDays, MessageCircle, Home as HomeIcon } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 import { useAuth } from '@/contexts/auth-context'
 import { supabase } from '@/lib/supabase'
@@ -567,7 +567,7 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
               onClick={() => setCurrentView('dashboard')}
               className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium"
             >
-              <Home className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <HomeIcon className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
               <span className="hidden sm:inline">Home</span>
             </Button>
             <Button
