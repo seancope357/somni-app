@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, Mic, MicOff, Sparkles, Book, BookOpen, History, TrendingUp, Search, X, LogOut, Heart, Brain, Zap, Calendar, Lightbulb, Settings, Mail, CalendarDays, MessageCircle } from 'lucide-react'
+import { Loader2, Mic, MicOff, Sparkles, Book, BookOpen, History, TrendingUp, Search, X, LogOut, Heart, Brain, Zap, Calendar, Lightbulb, Settings, Mail, CalendarDays, MessageCircle, Home } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 import { useAuth } from '@/contexts/auth-context'
 import { supabase } from '@/lib/supabase'
@@ -27,6 +27,8 @@ import { OnboardingData } from '@/types/onboarding'
 import WeeklyDigestView from '@/components/digest/WeeklyDigestView'
 import DreamTimeline from '@/components/timeline/DreamTimeline'
 import DreamChatbot from '@/components/chat/DreamChatbot'
+import FloatingChatButton from '@/components/chat/FloatingChatButton'
+import DashboardView from '@/components/dashboard/DashboardView'
 
 interface Dream {
   id: string
@@ -67,7 +69,7 @@ export default function Home() {
   const [sleepHours, setSleepHours] = useState(7.5)
   const [isLoading, setIsLoading] = useState(false)
   const [isListening, setIsListening] = useState(false)
-  const [currentView, setCurrentView] = useState<'interpret' | 'history' | 'patterns' | 'journal' | 'events' | 'insights' | 'settings' | 'digest' | 'timeline'>('interpret')
+  const [currentView, setCurrentView] = useState<'dashboard' | 'interpret' | 'history' | 'patterns' | 'journal' | 'events' | 'insights' | 'settings' | 'digest' | 'timeline'>('dashboard')
   const [dreams, setDreams] = useState<Dream[]>([])
   const [patterns, setPatterns] = useState<Patterns | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -560,6 +562,15 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
         <div className="flex justify-center mb-4 sm:mb-8">
           <div className="bg-white/10 backdrop-blur-lg rounded-full p-1 flex flex-wrap justify-center gap-1">
             <Button
+              variant={currentView === 'dashboard' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setCurrentView('dashboard')}
+              className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium"
+            >
+              <Home className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Home</span>
+            </Button>
+            <Button
               variant={currentView === 'interpret' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setCurrentView('interpret')}
@@ -642,6 +653,21 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
             </Button>
           </div>
         </div>
+
+        {/* Dashboard View */}
+        {currentView === 'dashboard' && (
+          <DashboardView
+            userId={user.id}
+            onInterpretClick={() => setCurrentView('interpret')}
+            onChatClick={(question) => {
+              setChatbotDream({
+                content: question,
+                interpretation: "Let me help you explore your dream patterns and insights."
+              })
+              setIsChatbotOpen(true)
+            }}
+          />
+        )}
 
         {/* Interpret View */}
         {currentView === 'interpret' && (
@@ -1241,6 +1267,21 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
           <DreamTimeline userId={user.id} />
         )}
       </div>
+
+      {/* Floating Chat Button - Always Visible */}
+      <FloatingChatButton
+        onClick={() => {
+          // If no dream context, open with generic welcome
+          if (!chatbotDream && !interpretation) {
+            setChatbotDream({
+              content: "I'd like to chat about my dreams and patterns",
+              interpretation: "Let me help you explore your dream patterns, sleep data, and insights."
+            })
+          }
+          setIsChatbotOpen(true)
+        }}
+        isOpen={isChatbotOpen}
+      />
 
       {/* Dream Chatbot - Slides in from right */}
       {isChatbotOpen && chatbotDream && (

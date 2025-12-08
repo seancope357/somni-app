@@ -3,13 +3,139 @@
 [33m[nodemon] watching path(s): src/**/*[39m
 [33m[nodemon] watching extensions: ts,tsx,js,jsx[39m
 [32m[nodemon] starting `next dev -p 3000`[39m
-   ▲ Next.js 15.3.5
-   - Local:        http://localhost:3000
-   - Network:      http://192.168.0.42:3000
-   - Environments: .env.local
+   ▲ Next.js 16.0.7 (Turbopack)
+   - Local:         http://localhost:3000
+   - Network:       http://192.168.1.186:3000
 
  ✓ Starting...
- ✓ Ready in 1387ms
- ○ Compiling / ...
- ✓ Compiled / in 3.2s (958 modules)
- GET / 200 in 3678ms
+ ✓ Ready in 1048ms
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `next dev -p 3000`[39m
+   ▲ Next.js 16.0.7 (Turbopack)
+   - Local:         http://localhost:3000
+   - Network:       http://192.168.1.186:3000
+
+ ✓ Starting...
+ ✓ Ready in 655ms
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `next dev -p 3000`[39m
+   ▲ Next.js 16.0.7 (Turbopack)
+   - Local:         http://localhost:3000
+   - Network:       http://192.168.1.186:3000
+
+ ✓ Starting...
+ ✓ Ready in 607ms
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `next dev -p 3000`[39m
+   ▲ Next.js 16.0.7 (Turbopack)
+   - Local:         http://localhost:3000
+   - Network:       http://192.168.1.186:3000
+
+ ✓ Starting...
+ ✓ Ready in 655ms
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `next dev -p 3000`[39m
+   ▲ Next.js 16.0.7 (Turbopack)
+   - Local:         http://localhost:3000
+   - Network:       http://192.168.1.186:3000
+
+ ✓ Starting...
+ ✓ Ready in 566ms
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `next dev -p 3000`[39m
+   ▲ Next.js 16.0.7 (Turbopack)
+   - Local:         http://localhost:3000
+   - Network:       http://192.168.1.186:3000
+
+ ✓ Starting...
+ ✓ Ready in 554ms
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `next dev -p 3000`[39m
+   ▲ Next.js 16.0.7 (Turbopack)
+   - Local:         http://localhost:3000
+   - Network:       http://192.168.1.186:3000
+
+ ✓ Starting...
+ ✓ Ready in 1028ms
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `next dev -p 3000`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `next dev -p 3000`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `next dev -p 3000`[39m
+   ▲ Next.js 16.0.7 (Turbopack)
+   - Local:         http://localhost:3000
+   - Network:       http://192.168.1.186:3000
+
+ ✓ Starting...
+ ✓ Ready in 606ms
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `next dev -p 3000`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `next dev -p 3000`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `next dev -p 3000`[39m
+   ▲ Next.js 16.0.7 (Turbopack)
+   - Local:         http://localhost:3000
+   - Network:       http://192.168.1.186:3000
+
+ ✓ Starting...
+ ✓ Ready in 655ms
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `next dev -p 3000`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `next dev -p 3000`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `next dev -p 3000`[39m
+   ▲ Next.js 16.0.7 (Turbopack)
+   - Local:         http://localhost:3000
+   - Network:       http://192.168.1.186:3000
+
+ ✓ Starting...
+ ✓ Ready in 611ms
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `next dev -p 3000`[39m
+   ▲ Next.js 16.0.7 (Turbopack)
+   - Local:         http://localhost:3000
+   - Network:       http://192.168.1.186:3000
+
+ ✓ Starting...
+ ✓ Ready in 672ms
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `next dev -p 3000`[39m
+   ▲ Next.js 16.0.7 (Turbopack)
+   - Local:         http://localhost:3000
+   - Network:       http://192.168.1.186:3000
+
+ ✓ Starting...
+ ✓ Ready in 624ms
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `next dev -p 3000`[39m
+   ▲ Next.js 16.0.7 (Turbopack)
+   - Local:         http://localhost:3000
+   - Network:       http://192.168.1.186:3000
+
+ ✓ Starting...
+ ✓ Ready in 660ms
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `next dev -p 3000`[39m
+   ▲ Next.js 16.0.7 (Turbopack)
+   - Local:         http://localhost:3000
+   - Network:       http://192.168.1.186:3000
+
+ ✓ Starting...
+ ✓ Ready in 645ms
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `next dev -p 3000`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `next dev -p 3000`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `next dev -p 3000`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `next dev -p 3000`[39m
+   ▲ Next.js 16.0.7 (Turbopack)
+   - Local:         http://localhost:3000
+   - Network:       http://192.168.1.186:3000
+
+ ✓ Starting...
+ ✓ Ready in 619ms
