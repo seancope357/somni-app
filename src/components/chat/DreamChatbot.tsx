@@ -44,7 +44,7 @@ export default function DreamChatbot({ userId, dreamId, dreamContent, interpreta
   useEffect(() => {
     setMessages([{
       role: 'assistant',
-      content: "Hello! I'm here to help you explore this dream more deeply.\n\nI have access to all your dream history, mood patterns, and life events. Feel free to ask me anything:\n\n• What does this symbol mean in context of my other dreams?\n• How does this dream relate to my recent moods?\n• Have I dreamed about this theme before?\n• What patterns do you notice across my dreams?\n• How does this connect to my life events?\n\nWhat would you like to explore?",
+      content: "Hello! I'm here to help you explore this dream more deeply.\n\nI have access to your complete history and can answer specific questions:\n\n**Sleep Patterns:** Average hours, sleep quality trends, day-of-week patterns, sleep-dream correlations\n\n**Dream History:** Up to 200 dreams, recurring symbols, emotions, themes\n\n**Mood & Energy:** 90 days of mood logs, stress levels, energy patterns\n\n**Life Context:** 12 months of life events, journal entries, your goals and stressors\n\nAsk me anything:\n• How have I been sleeping lately?\n• What emotions come up when I sleep less?\n• Do I dream differently on weekends?\n• What patterns connect my sleep, moods, and dreams?\n• How does this dream relate to recent life events?\n\nWhat would you like to explore?",
       timestamp: Date.now()
     }])
   }, [])
@@ -251,7 +251,7 @@ export default function DreamChatbot({ userId, dreamId, dreamContent, interpreta
                 </Button>
               </div>
               <p className="text-xs text-gray-500 mt-2 text-center">
-                I have access to all your dreams, moods, and patterns
+                I have access to 200 dreams, 90 days of moods, sleep patterns, journal entries, and life events
               </p>
             </div>
           </>
