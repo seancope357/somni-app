@@ -71,7 +71,7 @@ export async function GET(request: Request) {
     // Fetch mood logs
     const { data: moodLogs, error: moodError } = await supabase
       .from('mood_logs')
-      .select('id, mood, stress, energy, emoji, notes, log_date')
+      .select('id, mood, stress, energy, notes, log_date')
       .eq('user_id', userId)
       .gte('log_date', start)
       .lte('log_date', end)

@@ -46,6 +46,13 @@ export default function DreamTimeline({ userId }: DreamTimelineProps) {
   const [selectedDay, setSelectedDay] = useState<TimelineDay | null>(null)
   const detailsRef = useRef<HTMLDivElement>(null)
 
+  // Helper function to generate emoji from mood level
+  const getMoodEmoji = (mood: number | null) => {
+    if (!mood) return '😐'
+    const emojis = ['😢', '😕', '😐', '😊', '😄']
+    return emojis[mood - 1] || '😐'
+  }
+
   useEffect(() => {
     fetchTimelineData()
   }, [userId, viewMode, currentDate])
@@ -302,7 +309,7 @@ export default function DreamTimeline({ userId }: DreamTimelineProps) {
             )}
             {dayData && dayData.moodLog && (
               <div className="text-xl mt-auto">
-                {dayData.moodLog.emoji}
+                {getMoodEmoji(dayData.moodLog.mood)}
               </div>
             )}
             {dayData && dayData.lifeEvents.length > 0 && (
@@ -604,7 +611,7 @@ export default function DreamTimeline({ userId }: DreamTimelineProps) {
                 <div className="p-3 bg-pink-50 rounded-lg">
                   <div className="flex items-center gap-4">
                     <div>
-                      <span className="text-2xl">{selectedDay.moodLog.emoji}</span>
+                      <span className="text-2xl">{getMoodEmoji(selectedDay.moodLog.mood)}</span>
                     </div>
                     <div className="text-sm text-gray-700">
                       <p>Mood: {selectedDay.moodLog.mood}/5</p>
