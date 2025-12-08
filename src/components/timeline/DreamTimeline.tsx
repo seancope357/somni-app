@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, ChevronLeft, ChevronRight, Moon, Heart, Calendar as CalendarIcon, TrendingUp } from 'lucide-react'
+import { Loader2, ChevronLeft, ChevronRight, Moon, Heart, Calendar as CalendarIcon, TrendingUp, X } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 
@@ -44,10 +44,41 @@ export default function DreamTimeline({ userId }: DreamTimelineProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('month')
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDay, setSelectedDay] = useState<TimelineDay | null>(null)
+  const detailsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     fetchTimelineData()
   }, [userId, viewMode, currentDate])
+
+  // Click outside to close details
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (detailsRef.current && !detailsRef.current.contains(event.target as Node)) {
+        setSelectedDay(null)
+      }
+    }
+
+    if (selectedDay) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [selectedDay])
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedDay(null)
+      } else if (e.key === 'ArrowLeft') {
+        navigate('prev')
+      } else if (e.key === 'ArrowRight') {
+        navigate('next')
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyPress)
+    return () => document.removeEventListener('keydown', handleKeyPress)
+  }, [])
 
   const fetchTimelineData = async () => {
     setIsLoading(true)
@@ -121,10 +152,12 @@ export default function DreamTimeline({ userId }: DreamTimelineProps) {
     }
 
     setCurrentDate(newDate)
+    setSelectedDay(null) // Close details when navigating
   }
 
   const goToToday = () => {
     setCurrentDate(new Date())
+    setSelectedDay(null)
   }
 
   const getIntensityColor = (day: TimelineDay) => {
@@ -144,11 +177,11 @@ export default function DreamTimeline({ userId }: DreamTimelineProps) {
     }
 
     if (dreamCount === 1) {
-      return 'bg-purple-200 hover:bg-purple-300'
+      return 'bg-purple-200 hover:bg-purple-300 text-purple-900'
     } else if (dreamCount === 2) {
-      return 'bg-purple-400 hover:bg-purple-500'
+      return 'bg-purple-400 hover:bg-purple-500 text-white'
     } else {
-      return 'bg-purple-600 hover:bg-purple-700'
+      return 'bg-purple-600 hover:bg-purple-700 text-white'
     }
   }
 
@@ -156,18 +189,19 @@ export default function DreamTimeline({ userId }: DreamTimelineProps) {
     if (mood === null) return 'bg-gray-100 hover:bg-gray-200'
 
     if (highStress) {
-      return 'bg-red-200 hover:bg-red-300'
+      return 'bg-red-200 hover:bg-red-300 text-red-900'
     }
 
     if (mood <= 2) {
-      return 'bg-blue-200 hover:bg-blue-300'
+      return 'bg-blue-200 hover:bg-blue-300 text-blue-900'
     } else if (mood <= 3) {
-      return 'bg-yellow-200 hover:bg-yellow-300'
+      return 'bg-yellow-200 hover:bg-yellow-300 text-yellow-900'
     } else {
-      return 'bg-green-200 hover:bg-green-300'
+      return 'bg-green-200 hover:bg-green-300 text-green-900'
     }
   }
 
+  // Month View
   const renderMonthView = () => {
     const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
     const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0)
@@ -201,15 +235,12 @@ export default function DreamTimeline({ userId }: DreamTimelineProps) {
           <div className="flex flex-col items-center justify-center h-full">
             <span className={cn(
               "text-xs font-medium",
-              dayData?.dreamCount ? 'text-white' : 'text-gray-600'
+              !dayData && 'text-gray-600'
             )}>
               {i}
             </span>
             {dayData && dayData.dreamCount > 0 && (
-              <Moon className={cn(
-                "w-3 h-3 mt-0.5",
-                dayData.dreamCount > 2 ? 'text-white' : 'text-purple-900'
-              )} />
+              <Moon className="w-3 h-3 mt-0.5" />
             )}
             {dayData && dayData.lifeEvents.length > 0 && (
               <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-orange-500 rounded-full" />
@@ -227,6 +258,131 @@ export default function DreamTimeline({ userId }: DreamTimelineProps) {
           </div>
         ))}
         {days}
+      </div>
+    )
+  }
+
+  // Week View
+  const renderWeekView = () => {
+    const weekStart = new Date(currentDate)
+    weekStart.setDate(currentDate.getDate() - currentDate.getDay())
+
+    const days = []
+
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(weekStart)
+      date.setDate(weekStart.getDate() + i)
+      const dateStr = date.toISOString().split('T')[0]
+      const dayData = timelineData.find(d => d.date === dateStr)
+      const isToday = dateStr === new Date().toISOString().split('T')[0]
+
+      days.push(
+        <button
+          key={dateStr}
+          onClick={() => dayData && setSelectedDay(dayData)}
+          className={cn(
+            "p-4 rounded-lg border-2 transition-all flex-1 min-h-[120px] relative",
+            dayData ? getIntensityColor(dayData) : 'bg-gray-50 hover:bg-gray-100',
+            isToday ? 'border-purple-500 ring-2 ring-purple-200' : 'border-transparent',
+            selectedDay?.date === dateStr && 'ring-2 ring-indigo-400'
+          )}
+        >
+          <div className="flex flex-col h-full">
+            <div className="text-xs font-medium mb-2">
+              {date.toLocaleDateString('en-US', { weekday: 'short' })}
+            </div>
+            <div className="text-2xl font-bold mb-2">
+              {date.getDate()}
+            </div>
+            {dayData && dayData.dreamCount > 0 && (
+              <div className="flex items-center gap-1 text-xs">
+                <Moon className="w-4 h-4" />
+                <span>{dayData.dreamCount}</span>
+              </div>
+            )}
+            {dayData && dayData.moodLog && (
+              <div className="text-xl mt-auto">
+                {dayData.moodLog.emoji}
+              </div>
+            )}
+            {dayData && dayData.lifeEvents.length > 0 && (
+              <Badge variant="secondary" className="text-xs mt-1 bg-orange-500 text-white">
+                {dayData.lifeEvents.length} event{dayData.lifeEvents.length > 1 ? 's' : ''}
+              </Badge>
+            )}
+          </div>
+        </button>
+      )
+    }
+
+    return (
+      <div className="grid grid-cols-7 gap-2">
+        {days}
+      </div>
+    )
+  }
+
+  // Year View (12 mini months)
+  const renderYearView = () => {
+    const months = []
+
+    for (let month = 0; month < 12; month++) {
+      const firstDay = new Date(currentDate.getFullYear(), month, 1)
+      const lastDay = new Date(currentDate.getFullYear(), month + 1, 0)
+      const daysInMonth = lastDay.getDate()
+
+      // Calculate dream count for this month
+      const monthDreams = timelineData.filter(d => {
+        const date = new Date(d.date)
+        return date.getMonth() === month
+      }).reduce((sum, d) => sum + d.dreamCount, 0)
+
+      months.push(
+        <button
+          key={month}
+          onClick={() => {
+            const newDate = new Date(currentDate.getFullYear(), month, 1)
+            setCurrentDate(newDate)
+            setViewMode('month')
+          }}
+          className="p-3 rounded-lg bg-white border border-gray-200 hover:border-purple-400 transition-all group"
+        >
+          <div className="text-xs font-medium text-gray-700 mb-2">
+            {new Date(currentDate.getFullYear(), month).toLocaleDateString('en-US', { month: 'short' })}
+          </div>
+          <div className="grid grid-cols-7 gap-0.5">
+            {Array.from({ length: daysInMonth }, (_, i) => {
+              const dateStr = `${currentDate.getFullYear()}-${String(month + 1).padStart(2, '0')}-${String(i + 1).padStart(2, '0')}`
+              const dayData = timelineData.find(d => d.date === dateStr)
+              const hasDreams = dayData && dayData.dreamCount > 0
+
+              return (
+                <div
+                  key={i}
+                  className={cn(
+                    "w-2 h-2 rounded-sm",
+                    hasDreams
+                      ? dayData.dreamCount === 1
+                        ? 'bg-purple-300'
+                        : dayData.dreamCount === 2
+                        ? 'bg-purple-500'
+                        : 'bg-purple-700'
+                      : 'bg-gray-100'
+                  )}
+                />
+              )
+            })}
+          </div>
+          <div className="text-xs text-purple-600 mt-2 font-medium">
+            {monthDreams} dream{monthDreams !== 1 ? 's' : ''}
+          </div>
+        </button>
+      )
+    }
+
+    return (
+      <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
+        {months}
       </div>
     )
   }
@@ -334,7 +490,9 @@ export default function DreamTimeline({ userId }: DreamTimelineProps) {
             </div>
           </div>
           <CardDescription>
-            Click on a day to see details. Darker colors = more dreams
+            {viewMode === 'year'
+              ? 'Click a month to view details'
+              : 'Click on a day to see details. Use arrow keys or buttons to navigate'}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -358,38 +516,42 @@ export default function DreamTimeline({ userId }: DreamTimelineProps) {
 
           {/* Calendar Grid */}
           {viewMode === 'month' && renderMonthView()}
+          {viewMode === 'week' && renderWeekView()}
+          {viewMode === 'year' && renderYearView()}
 
           {/* Legend */}
-          <div className="mt-6 flex flex-wrap items-center gap-4 text-xs text-gray-600">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-gray-100 rounded border" />
-              <span>No activity</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-purple-200 rounded" />
-              <span>1 dream</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-purple-400 rounded" />
-              <span>2 dreams</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-purple-600 rounded" />
-              <span>3+ dreams</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-orange-200 rounded relative">
-                <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-orange-500 rounded-full" />
+          {viewMode !== 'year' && (
+            <div className="mt-6 flex flex-wrap items-center gap-4 text-xs text-gray-600">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-gray-100 rounded border" />
+                <span>No activity</span>
               </div>
-              <span>Life event</span>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-purple-200 rounded" />
+                <span>1 dream</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-purple-400 rounded" />
+                <span>2 dreams</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-purple-600 rounded" />
+                <span>3+ dreams</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-orange-200 rounded relative">
+                  <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-orange-500 rounded-full" />
+                </div>
+                <span>Life event</span>
+              </div>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Selected Day Details */}
       {selectedDay && (
-        <Card className="border-0 bg-white/95 backdrop-blur-lg rounded-2xl shadow-lg">
+        <Card ref={detailsRef} className="border-0 bg-white/95 backdrop-blur-lg rounded-2xl shadow-lg animate-in fade-in slide-in-from-bottom-5">
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-xl font-serif">
@@ -401,7 +563,7 @@ export default function DreamTimeline({ userId }: DreamTimelineProps) {
                 })}
               </CardTitle>
               <Button variant="ghost" size="sm" onClick={() => setSelectedDay(null)}>
-                ✕
+                <X className="w-4 h-4" />
               </Button>
             </div>
           </CardHeader>
