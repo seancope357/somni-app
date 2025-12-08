@@ -89,6 +89,11 @@ export default function Home() {
   const [reflectionQuestions, setReflectionQuestions] = useState<string[]>([])
   const [preferredPerspective, setPreferredPerspective] = useState<PerspectiveType>('synthesized')
   const [isChatbotOpen, setIsChatbotOpen] = useState(false)
+  const [chatbotDream, setChatbotDream] = useState<{
+    content: string
+    interpretation: string
+    dreamId?: string
+  } | null>(null)
 
   // Load preferred perspective from localStorage
   useEffect(() => {
@@ -860,7 +865,13 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
                   {/* Chat with Dream Explorer Button */}
                   <div className="mt-6 flex justify-center">
                     <Button
-                      onClick={() => setIsChatbotOpen(true)}
+                      onClick={() => {
+                        setChatbotDream({
+                          content: dreamText,
+                          interpretation: getDisplayedInterpretation()
+                        })
+                        setIsChatbotOpen(true)
+                      }}
                       className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all"
                       size="lg"
                     >
@@ -1011,6 +1022,10 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
               dream={selectedDream}
               open={showDreamDialog}
               onClose={() => setShowDreamDialog(false)}
+              onChatAboutDream={(content, interpretation, dreamId) => {
+                setChatbotDream({ content, interpretation, dreamId })
+                setIsChatbotOpen(true)
+              }}
             />
           </div>
         )}
@@ -1228,12 +1243,16 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
       </div>
 
       {/* Dream Chatbot - Slides in from right */}
-      {isChatbotOpen && interpretation && (
+      {isChatbotOpen && chatbotDream && (
         <DreamChatbot
           userId={user.id}
-          dreamContent={dreamText}
-          interpretation={interpretation}
-          onClose={() => setIsChatbotOpen(false)}
+          dreamId={chatbotDream.dreamId}
+          dreamContent={chatbotDream.content}
+          interpretation={chatbotDream.interpretation}
+          onClose={() => {
+            setIsChatbotOpen(false)
+            setChatbotDream(null)
+          }}
         />
       )}
     </div>

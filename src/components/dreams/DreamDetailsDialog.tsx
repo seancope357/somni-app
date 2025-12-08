@@ -1,9 +1,10 @@
 'use client'
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Calendar, Moon, Brain, Heart, Sparkles } from 'lucide-react'
+import { Calendar, Moon, Brain, Heart, Sparkles, MessageCircle } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { FormattedText } from '@/components/ui/formatted-text'
 
@@ -22,9 +23,10 @@ interface DreamDetailsDialogProps {
   dream: Dream | null
   open: boolean
   onClose: () => void
+  onChatAboutDream?: (dreamContent: string, interpretation: string, dreamId: string) => void
 }
 
-export default function DreamDetailsDialog({ dream, open, onClose }: DreamDetailsDialogProps) {
+export default function DreamDetailsDialog({ dream, open, onClose, onChatAboutDream }: DreamDetailsDialogProps) {
   if (!dream) return null
 
   const formatDate = (dateString: string) => {
@@ -35,6 +37,13 @@ export default function DreamDetailsDialog({ dream, open, onClose }: DreamDetail
       hour: '2-digit',
       minute: '2-digit'
     })
+  }
+
+  const handleChatClick = () => {
+    if (onChatAboutDream) {
+      onChatAboutDream(dream.content, dream.interpretation, dream.id)
+      onClose() // Close the dialog when opening chatbot
+    }
   }
 
   return (
@@ -175,6 +184,22 @@ export default function DreamDetailsDialog({ dream, open, onClose }: DreamDetail
             </div>
           </div>
         </ScrollArea>
+
+        {/* Footer with Chat Button */}
+        <DialogFooter className="px-6 py-4 border-t border-gray-200 bg-gradient-to-r from-purple-50 to-indigo-50">
+          <div className="flex items-center justify-between w-full">
+            <p className="text-sm text-gray-600">
+              Want to explore this dream further?
+            </p>
+            <Button
+              onClick={handleChatClick}
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-lg"
+            >
+              <MessageCircle className="w-4 h-4 mr-2" />
+              Chat About This Dream
+            </Button>
+          </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )
