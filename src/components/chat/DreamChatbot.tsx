@@ -9,6 +9,7 @@ import { Loader2, Send, X, Minimize2, Maximize2, Brain, Sparkles, Copy, Check, M
 import { toast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 import { FormattedText } from '@/components/ui/formatted-text'
+import MiniChart from './MiniChart'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -89,6 +90,83 @@ export default function DreamChatbot({ userId, dreamId, dreamContent, interpreta
       description: "Thank you for your feedback!",
       duration: 1500
     })
+  }
+
+  // Extract visualizable data from AI response
+  const extractChartData = (content: string) => {
+    const charts = []
+
+    // Pattern 1: Extract sleep hours over days (e.g., "7.5 hours, 8 hours, 6.5 hours")
+    const sleepPattern = /(\d+\.?\d*)\s*hours?/gi
+    const sleepMatches = Array.from(content.matchAll(sleepPattern))
+    if (sleepMatches.length >= 3 && content.toLowerCase().includes('sleep')) {
+      const sleepData = sleepMatches.slice(0, 7).map((match, idx) => ({
+        label: `Day ${idx + 1}`,
+        value: parseFloat(match[1])
+      }))
+      charts.push({
+        type: 'line' as const,
+        data: sleepData,
+        color: '#8b5cf6',
+        title: 'Sleep Hours Trend',
+        trend: sleepData[sleepData.length - 1].value > sleepData[0].value ? 'up' as const :
+               sleepData[sleepData.length - 1].value < sleepData[0].value ? 'down' as const : 'neutral' as const
+      })
+    }
+
+    // Pattern 2: Extract mood scores (e.g., "mood of 4/5, 3/5, 5/5")
+    const moodPattern = /(\d+)\/5/g
+    const moodMatches = Array.from(content.matchAll(moodPattern))
+    if (moodMatches.length >= 3 && content.toLowerCase().includes('mood')) {
+      const moodData = moodMatches.slice(0, 7).map((match, idx) => ({
+        label: `Day ${idx + 1}`,
+        value: parseInt(match[1])
+      }))
+      charts.push({
+        type: 'line' as const,
+        data: moodData,
+        color: '#ec4899',
+        title: 'Mood Trend',
+        trend: moodData[moodData.length - 1].value > moodData[0].value ? 'up' as const :
+               moodData[moodData.length - 1].value < moodData[0].value ? 'down' as const : 'neutral' as const
+      })
+    }
+
+    // Pattern 3: Extract percentages (e.g., "25% positive, 40% neutral, 35% negative")
+    const percentPattern = /(\d+)%\s+([a-z]+)/gi
+    const percentMatches = Array.from(content.matchAll(percentPattern))
+    if (percentMatches.length >= 2) {
+      const percentData = percentMatches.map(match => ({
+        label: match[2].charAt(0).toUpperCase() + match[2].slice(1),
+        value: parseInt(match[1])
+      }))
+      charts.push({
+        type: 'bar' as const,
+        data: percentData,
+        color: '#6366f1',
+        title: 'Distribution',
+        trend: undefined
+      })
+    }
+
+    // Pattern 4: Extract numbered lists with values (e.g., "Monday: 7h, Tuesday: 8h")
+    const dayValuePattern = /(Mon|Tue|Wed|Thu|Fri|Sat|Sun)[a-z]*:?\s*(\d+\.?\d*)/gi
+    const dayMatches = Array.from(content.matchAll(dayValuePattern))
+    if (dayMatches.length >= 3) {
+      const dayData = dayMatches.map(match => ({
+        label: match[1],
+        value: parseFloat(match[2])
+      }))
+      charts.push({
+        type: 'bar' as const,
+        data: dayData,
+        color: '#10b981',
+        title: 'Weekly Pattern',
+        trend: undefined
+      })
+    }
+
+    return charts
   }
 
   // Detect suggested actions from AI response
@@ -576,6 +654,18 @@ export default function DreamChatbot({ userId, dreamId, dreamContent, interpreta
                           })}
                         </p>
                       </div>
+
+                      {/* Inline data visualizations */}
+                      {message.role === 'assistant' && extractChartData(message.content).map((chart, chartIdx) => (
+                        <MiniChart
+                          key={chartIdx}
+                          type={chart.type}
+                          data={chart.data}
+                          color={chart.color}
+                          title={chart.title}
+                          trend={chart.trend}
+                        />
+                      ))}
                       {/* Show reaction badge if message has been reacted to */}
                       {message.role === 'assistant' && message.reaction && (
                         <div className="mt-1 ml-2">

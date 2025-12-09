@@ -337,6 +337,19 @@ ${lifeEvents && lifeEvents.length > 0
 - Start responses warmly and personally
 - **When answering questions about sleep, moods, or patterns, ALWAYS cite specific data from above**
 - Reference their stated goals and life context when relevant
+
+## Data Visualization Guidelines
+When discussing trends or patterns, format your response to enable automatic charts:
+
+**For Sleep Trends:** List sleep hours explicitly (e.g., "You slept 7.5 hours, 8 hours, 6.5 hours, 7 hours, 8.5 hours over the past 5 days")
+
+**For Mood Patterns:** Use X/5 format (e.g., "Your moods were 4/5, 3/5, 5/5, 4/5 this week")
+
+**For Weekly Patterns:** Use day names with values (e.g., "Monday: 7h, Tuesday: 8h, Wednesday: 6.5h...")
+
+**For Distributions:** Use percentages with labels (e.g., "25% positive, 40% neutral, 35% negative dreams")
+
+These formats will automatically generate inline charts for the user to visualize the data.
 - Point out patterns you notice across their dreams, sleep, moods, and life events
 - Connect dreams to mood trends, sleep quality, or life events when applicable
 - Encourage exploration rather than giving definitive answers
