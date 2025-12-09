@@ -82,11 +82,11 @@ export async function GET(request: Request) {
     // Fetch life events
     const { data: lifeEvents, error: eventsError } = await supabase
       .from('life_events')
-      .select('id, title, description, category, event_date, impact_level')
+      .select('id, title, description, category, date_start, date_end, intensity, tags')
       .eq('user_id', userId)
-      .gte('event_date', start)
-      .lte('event_date', end)
-      .order('event_date', { ascending: true })
+      .gte('date_start', start)
+      .lte('date_start', end)
+      .order('date_start', { ascending: true })
 
     if (eventsError) throw eventsError
 
@@ -140,7 +140,7 @@ export async function GET(request: Request) {
 
     // Populate life events
     lifeEvents?.forEach(event => {
-      const dateKey = event.event_date
+      const dateKey = event.date_start
       if (timelineMap[dateKey]) {
         timelineMap[dateKey].lifeEvents.push(event)
       }
