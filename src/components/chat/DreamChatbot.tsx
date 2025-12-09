@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, Send, X, Minimize2, Maximize2, Brain, Sparkles, Copy, Check, Mic, MicOff, Download, Save, History, Trash2 } from 'lucide-react'
+import { Loader2, Send, X, Minimize2, Maximize2, Brain, Sparkles, Copy, Check, Mic, MicOff, Download, Save, History, Trash2, ThumbsUp, ThumbsDown, PlusCircle, Calendar as CalendarIcon, BookOpen } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 import { FormattedText } from '@/components/ui/formatted-text'
@@ -15,6 +15,7 @@ interface Message {
   content: string
   timestamp: number
   id?: string
+  reaction?: 'thumbs_up' | 'thumbs_down' | null
 }
 
 interface DreamChatbotProps {
@@ -70,6 +71,71 @@ export default function DreamChatbot({ userId, dreamId, dreamContent, interpreta
         variant: "destructive"
       })
     }
+  }
+
+  // React to message
+  const reactToMessage = (messageId: string, reaction: 'thumbs_up' | 'thumbs_down') => {
+    setMessages(prev => prev.map(msg => {
+      if ((msg.id || '') === messageId) {
+        // Toggle reaction - if same reaction clicked, remove it
+        const newReaction = msg.reaction === reaction ? null : reaction
+        return { ...msg, reaction: newReaction }
+      }
+      return msg
+    }))
+
+    toast({
+      title: "Feedback recorded",
+      description: "Thank you for your feedback!",
+      duration: 1500
+    })
+  }
+
+  // Detect suggested actions from AI response
+  const getSuggestedActions = (content: string) => {
+    const actions = []
+    const lowerContent = content.toLowerCase()
+
+    if (lowerContent.includes('journal') || lowerContent.includes('write') || lowerContent.includes('reflect on')) {
+      actions.push({
+        label: 'Create journal entry',
+        icon: BookOpen,
+        action: () => {
+          toast({
+            title: "Opening journal",
+            description: "Feature coming soon - will open journal with pre-filled insights"
+          })
+        }
+      })
+    }
+
+    if (lowerContent.includes('life event') || lowerContent.includes('significant') || lowerContent.includes('milestone')) {
+      actions.push({
+        label: 'Add life event',
+        icon: CalendarIcon,
+        action: () => {
+          toast({
+            title: "Opening life events",
+            description: "Feature coming soon - will open life event form"
+          })
+        }
+      })
+    }
+
+    if (lowerContent.includes('mood') || lowerContent.includes('feeling') || lowerContent.includes('emotional')) {
+      actions.push({
+        label: 'Log current mood',
+        icon: PlusCircle,
+        action: () => {
+          toast({
+            title: "Opening mood tracker",
+            description: "Feature coming soon - will open mood log form"
+          })
+        }
+      })
+    }
+
+    return actions
   }
 
   // Voice input functionality
@@ -438,12 +504,13 @@ export default function DreamChatbot({ userId, dreamId, dreamContent, interpreta
                 >
                   <div className="flex items-start gap-2 max-w-[85%]">
                     {message.role === 'assistant' && (
-                      <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => copyMessage(message.content, message.id || `${index}`)}
                           className="h-7 w-7 p-0"
+                          title="Copy message"
                         >
                           {copiedMessageId === (message.id || `${index}`) ? (
                             <Check className="w-3 h-3 text-green-600" />
@@ -451,32 +518,100 @@ export default function DreamChatbot({ userId, dreamId, dreamContent, interpreta
                             <Copy className="w-3 h-3 text-gray-500" />
                           )}
                         </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => reactToMessage(message.id || `${index}`, 'thumbs_up')}
+                          className={cn(
+                            "h-7 w-7 p-0",
+                            message.reaction === 'thumbs_up' && "bg-green-50"
+                          )}
+                          title="Helpful response"
+                        >
+                          <ThumbsUp className={cn(
+                            "w-3 h-3",
+                            message.reaction === 'thumbs_up' ? "text-green-600 fill-green-600" : "text-gray-500"
+                          )} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => reactToMessage(message.id || `${index}`, 'thumbs_down')}
+                          className={cn(
+                            "h-7 w-7 p-0",
+                            message.reaction === 'thumbs_down' && "bg-red-50"
+                          )}
+                          title="Not helpful"
+                        >
+                          <ThumbsDown className={cn(
+                            "w-3 h-3",
+                            message.reaction === 'thumbs_down' ? "text-red-600 fill-red-600" : "text-gray-500"
+                          )} />
+                        </Button>
                       </div>
                     )}
-                    <div
-                      className={cn(
-                        "rounded-2xl px-4 py-2 shadow-sm",
-                        message.role === 'user'
-                          ? 'bg-gradient-to-br from-purple-600 to-indigo-600 text-white'
-                          : 'bg-gray-100 text-gray-800'
-                      )}
-                    >
-                      {message.role === 'assistant' ? (
-                        <FormattedText text={message.content} className="text-sm leading-relaxed" />
-                      ) : (
-                        <p className="text-sm leading-relaxed">{message.content}</p>
-                      )}
-                      <p
+                    <div className="flex-1">
+                      <div
                         className={cn(
-                          "text-xs mt-1",
-                          message.role === 'user' ? 'text-purple-200' : 'text-gray-500'
+                          "rounded-2xl px-4 py-2 shadow-sm",
+                          message.role === 'user'
+                            ? 'bg-gradient-to-br from-purple-600 to-indigo-600 text-white'
+                            : 'bg-gray-100 text-gray-800'
                         )}
                       >
-                        {new Date(message.timestamp).toLocaleTimeString('en-US', {
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </p>
+                        {message.role === 'assistant' ? (
+                          <FormattedText text={message.content} className="text-sm leading-relaxed" />
+                        ) : (
+                          <p className="text-sm leading-relaxed">{message.content}</p>
+                        )}
+                        <p
+                          className={cn(
+                            "text-xs mt-1",
+                            message.role === 'user' ? 'text-purple-200' : 'text-gray-500'
+                          )}
+                        >
+                          {new Date(message.timestamp).toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                      </div>
+                      {/* Show reaction badge if message has been reacted to */}
+                      {message.role === 'assistant' && message.reaction && (
+                        <div className="mt-1 ml-2">
+                          <Badge variant="secondary" className={cn(
+                            "text-xs",
+                            message.reaction === 'thumbs_up' ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                          )}>
+                            {message.reaction === 'thumbs_up' ? (
+                              <><ThumbsUp className="w-3 h-3 mr-1 fill-current" /> Helpful</>
+                            ) : (
+                              <><ThumbsDown className="w-3 h-3 mr-1 fill-current" /> Not helpful</>
+                            )}
+                          </Badge>
+                        </div>
+                      )}
+
+                      {/* Quick action buttons for AI suggestions */}
+                      {message.role === 'assistant' && getSuggestedActions(message.content).length > 0 && (
+                        <div className="mt-2 ml-2 flex flex-wrap gap-2">
+                          {getSuggestedActions(message.content).map((action, idx) => {
+                            const Icon = action.icon
+                            return (
+                              <Button
+                                key={idx}
+                                variant="outline"
+                                size="sm"
+                                onClick={action.action}
+                                className="h-7 text-xs border-purple-200 text-purple-700 hover:bg-purple-50"
+                              >
+                                <Icon className="w-3 h-3 mr-1" />
+                                {action.label}
+                              </Button>
+                            )
+                          })}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
