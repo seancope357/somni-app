@@ -508,7 +508,7 @@ export default function DreamChatbot({ userId, dreamId, dreamContent, interpreta
                   size="sm"
                   onClick={exportConversation}
                   disabled={messages.length <= 1}
-                  className="h-8 w-8 p-0"
+                  className="h-8 w-8 p-0 transition-all duration-200 hover:scale-110 hover:bg-purple-100 hover:text-purple-600"
                   title="Export conversation (Cmd+E)"
                 >
                   <Download className="w-4 h-4" />
@@ -518,7 +518,7 @@ export default function DreamChatbot({ userId, dreamId, dreamContent, interpreta
                   size="sm"
                   onClick={saveConversation}
                   disabled={messages.length <= 1 || isSaving}
-                  className="h-8 w-8 p-0"
+                  className="h-8 w-8 p-0 transition-all duration-200 hover:scale-110 hover:bg-purple-100 hover:text-purple-600"
                   title="Save to history (Cmd+S)"
                 >
                   {isSaving ? (
