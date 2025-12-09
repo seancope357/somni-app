@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, Send, X, Minimize2, Maximize2, Brain, Sparkles } from 'lucide-react'
+import { Loader2, Send, X, Minimize2, Maximize2, Brain, Sparkles, Copy, Check, Mic, MicOff, Download, Save, History, Trash2 } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 import { FormattedText } from '@/components/ui/formatted-text'
@@ -14,6 +14,7 @@ interface Message {
   role: 'user' | 'assistant'
   content: string
   timestamp: number
+  id?: string
 }
 
 interface DreamChatbotProps {
@@ -29,8 +30,20 @@ export default function DreamChatbot({ userId, dreamId, dreamContent, interpreta
   const [userInput, setUserInput] = useState('')
   const [isThinking, setIsThinking] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null)
+  const [isRecording, setIsRecording] = useState(false)
+  const [showHistory, setShowHistory] = useState(false)
+  const [conversationId, setConversationId] = useState<string | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
+  const [quickReplies, setQuickReplies] = useState<string[]>([
+    "How have I been sleeping lately?",
+    "What patterns do you see in my dreams?",
+    "How does my mood affect my dreams?",
+    "What recurring themes appear?"
+  ])
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const recognitionRef = useRef<any>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -40,22 +53,224 @@ export default function DreamChatbot({ userId, dreamId, dreamContent, interpreta
     scrollToBottom()
   }, [messages])
 
+  // Copy message to clipboard
+  const copyMessage = async (content: string, messageId: string) => {
+    try {
+      await navigator.clipboard.writeText(content)
+      setCopiedMessageId(messageId)
+      toast({
+        title: "Copied!",
+        description: "Message copied to clipboard"
+      })
+      setTimeout(() => setCopiedMessageId(null), 2000)
+    } catch (error) {
+      toast({
+        title: "Failed to copy",
+        description: "Could not copy message to clipboard",
+        variant: "destructive"
+      })
+    }
+  }
+
+  // Voice input functionality
+  const startVoiceInput = () => {
+    if (typeof window === 'undefined') return
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    if (!SpeechRecognition) {
+      toast({
+        title: "Not supported",
+        description: "Voice input is not supported in your browser",
+        variant: "destructive"
+      })
+      return
+    }
+
+    const recognition = new SpeechRecognition()
+    recognition.continuous = false
+    recognition.interimResults = false
+
+    recognition.onstart = () => {
+      setIsRecording(true)
+    }
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript
+      setUserInput(transcript)
+      setIsRecording(false)
+    }
+
+    recognition.onerror = () => {
+      setIsRecording(false)
+      toast({
+        title: "Voice input failed",
+        description: "Could not capture voice input. Please try again.",
+        variant: "destructive"
+      })
+    }
+
+    recognition.onend = () => {
+      setIsRecording(false)
+    }
+
+    recognitionRef.current = recognition
+    recognition.start()
+  }
+
+  const stopVoiceInput = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop()
+      setIsRecording(false)
+    }
+  }
+
+  // Update quick replies based on conversation context
+  const updateQuickReplies = (lastMessage: string) => {
+    const contextualReplies = []
+
+    if (lastMessage.toLowerCase().includes('sleep')) {
+      contextualReplies.push("Tell me more about my sleep quality", "How does sleep affect my dream recall?")
+    }
+    if (lastMessage.toLowerCase().includes('mood')) {
+      contextualReplies.push("What's the mood-dream connection?", "Am I dreaming more when stressed?")
+    }
+    if (lastMessage.toLowerCase().includes('pattern')) {
+      contextualReplies.push("What other patterns exist?", "Show me long-term trends")
+    }
+
+    // Fallback to default questions
+    if (contextualReplies.length < 3) {
+      const defaults = [
+        "What emotions come up most in my dreams?",
+        "How does this dream compare to my recent ones?",
+        "Do I dream differently on weekends?",
+        "What symbols appear frequently?"
+      ]
+      contextualReplies.push(...defaults.filter(q => !contextualReplies.includes(q)).slice(0, 4 - contextualReplies.length))
+    }
+
+    setQuickReplies(contextualReplies.slice(0, 4))
+  }
+
+  // Save conversation
+  const saveConversation = async () => {
+    if (messages.length <= 1) {
+      toast({
+        title: "Nothing to save",
+        description: "Start a conversation first",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setIsSaving(true)
+    try {
+      const title = `Dream chat - ${new Date().toLocaleDateString()}`
+      const response = await fetch('/api/chat-history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          dreamId,
+          title,
+          messages: messages.map(m => ({ role: m.role, content: m.content })),
+          conversationId
+        })
+      })
+
+      const data = await response.json()
+      if (response.ok) {
+        if (data.conversationId) {
+          setConversationId(data.conversationId)
+        }
+        toast({
+          title: "Saved!",
+          description: "Conversation saved to history"
+        })
+      } else {
+        throw new Error(data.error)
+      }
+    } catch (error: any) {
+      toast({
+        title: "Save failed",
+        description: error.message || "Could not save conversation",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  // Export conversation as text
+  const exportConversation = () => {
+    const text = messages.map(m => {
+      const time = new Date(m.timestamp).toLocaleString()
+      return `[${time}] ${m.role.toUpperCase()}:\n${m.content}\n`
+    }).join('\n')
+
+    const blob = new Blob([text], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `dream-chat-${new Date().toISOString().split('T')[0]}.txt`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+
+    toast({
+      title: "Exported!",
+      description: "Conversation downloaded"
+    })
+  }
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd/Ctrl + K to close chatbot
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        onClose()
+      }
+      // Escape to close
+      if (e.key === 'Escape' && !isMinimized) {
+        onClose()
+      }
+      // Cmd/Ctrl + S to save
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault()
+        saveConversation()
+      }
+      // Cmd/Ctrl + E to export
+      if ((e.metaKey || e.ctrlKey) && e.key === 'e') {
+        e.preventDefault()
+        exportConversation()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [messages, isMinimized, conversationId])
+
   // Initialize with welcome message
   useEffect(() => {
     setMessages([{
       role: 'assistant',
       content: "Hello! I'm here to help you explore this dream more deeply.\n\nI have access to your complete history and can answer specific questions:\n\n**Sleep Patterns:** Average hours, sleep quality trends, day-of-week patterns, sleep-dream correlations\n\n**Dream History:** Up to 200 dreams, recurring symbols, emotions, themes\n\n**Mood & Energy:** 90 days of mood logs, stress levels, energy patterns\n\n**Life Context:** 12 months of life events, journal entries, your goals and stressors\n\nAsk me anything:\n• How have I been sleeping lately?\n• What emotions come up when I sleep less?\n• Do I dream differently on weekends?\n• What patterns connect my sleep, moods, and dreams?\n• How does this dream relate to recent life events?\n\nWhat would you like to explore?",
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      id: 'welcome-message'
     }])
   }, [])
 
-  const handleSendMessage = async () => {
-    if (!userInput.trim() || isThinking) return
+  const handleSendMessage = async (messageText?: string) => {
+    const textToSend = messageText || userInput.trim()
+    if (!textToSend || isThinking) return
 
     const userMessage: Message = {
       role: 'user',
-      content: userInput.trim(),
-      timestamp: Date.now()
+      content: textToSend,
+      timestamp: Date.now(),
+      id: `user-${Date.now()}`
     }
 
     setMessages(prev => [...prev, userMessage])
@@ -82,9 +297,13 @@ export default function DreamChatbot({ userId, dreamId, dreamContent, interpreta
         const assistantMessage: Message = {
           role: 'assistant',
           content: data.response,
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          id: `assistant-${Date.now()}`
         }
         setMessages(prev => [...prev, assistantMessage])
+
+        // Update quick replies based on the AI response
+        updateQuickReplies(data.response)
       } else {
         throw new Error(data.error || 'Failed to get response')
       }
@@ -98,6 +317,10 @@ export default function DreamChatbot({ userId, dreamId, dreamContent, interpreta
       setIsThinking(false)
       inputRef.current?.focus()
     }
+  }
+
+  const handleQuickReply = (question: string) => {
+    handleSendMessage(question)
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -139,8 +362,33 @@ export default function DreamChatbot({ userId, dreamId, dreamContent, interpreta
                 <Button
                   variant="ghost"
                   size="sm"
+                  onClick={exportConversation}
+                  disabled={messages.length <= 1}
+                  className="h-8 w-8 p-0"
+                  title="Export conversation (Cmd+E)"
+                >
+                  <Download className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={saveConversation}
+                  disabled={messages.length <= 1 || isSaving}
+                  className="h-8 w-8 p-0"
+                  title="Save to history (Cmd+S)"
+                >
+                  {isSaving ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Save className="w-4 h-4" />
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setIsMinimized(true)}
                   className="h-8 w-8 p-0"
+                  title="Minimize"
                 >
                   <Minimize2 className="w-4 h-4" />
                 </Button>
@@ -149,6 +397,7 @@ export default function DreamChatbot({ userId, dreamId, dreamContent, interpreta
                   size="sm"
                   onClick={onClose}
                   className="h-8 w-8 p-0"
+                  title="Close (Esc or Cmd+K)"
                 >
                   <X className="w-4 h-4" />
                 </Button>
@@ -181,46 +430,68 @@ export default function DreamChatbot({ userId, dreamId, dreamContent, interpreta
               {/* Messages */}
               {messages.map((message, index) => (
                 <div
-                  key={index}
+                  key={message.id || index}
                   className={cn(
-                    "flex",
+                    "flex group",
                     message.role === 'user' ? 'justify-end' : 'justify-start'
                   )}
                 >
-                  <div
-                    className={cn(
-                      "max-w-[85%] rounded-2xl px-4 py-2 shadow-sm",
-                      message.role === 'user'
-                        ? 'bg-gradient-to-br from-purple-600 to-indigo-600 text-white'
-                        : 'bg-gray-100 text-gray-800'
+                  <div className="flex items-start gap-2 max-w-[85%]">
+                    {message.role === 'assistant' && (
+                      <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => copyMessage(message.content, message.id || `${index}`)}
+                          className="h-7 w-7 p-0"
+                        >
+                          {copiedMessageId === (message.id || `${index}`) ? (
+                            <Check className="w-3 h-3 text-green-600" />
+                          ) : (
+                            <Copy className="w-3 h-3 text-gray-500" />
+                          )}
+                        </Button>
+                      </div>
                     )}
-                  >
-                    {message.role === 'assistant' ? (
-                      <FormattedText text={message.content} className="text-sm leading-relaxed" />
-                    ) : (
-                      <p className="text-sm leading-relaxed">{message.content}</p>
-                    )}
-                    <p
+                    <div
                       className={cn(
-                        "text-xs mt-1",
-                        message.role === 'user' ? 'text-purple-200' : 'text-gray-500'
+                        "rounded-2xl px-4 py-2 shadow-sm",
+                        message.role === 'user'
+                          ? 'bg-gradient-to-br from-purple-600 to-indigo-600 text-white'
+                          : 'bg-gray-100 text-gray-800'
                       )}
                     >
-                      {new Date(message.timestamp).toLocaleTimeString('en-US', {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </p>
+                      {message.role === 'assistant' ? (
+                        <FormattedText text={message.content} className="text-sm leading-relaxed" />
+                      ) : (
+                        <p className="text-sm leading-relaxed">{message.content}</p>
+                      )}
+                      <p
+                        className={cn(
+                          "text-xs mt-1",
+                          message.role === 'user' ? 'text-purple-200' : 'text-gray-500'
+                        )}
+                      >
+                        {new Date(message.timestamp).toLocaleTimeString('en-US', {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
                   </div>
                 </div>
               ))}
 
-              {/* Thinking Indicator */}
+              {/* Enhanced Thinking Indicator */}
               {isThinking && (
                 <div className="flex justify-start">
                   <div className="bg-gray-100 rounded-2xl px-4 py-3 shadow-sm">
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin text-purple-500" />
+                    <div className="flex items-center gap-3">
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                        <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                        <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                      </div>
                       <span className="text-sm text-gray-600">Thinking...</span>
                     </div>
                   </div>
@@ -231,7 +502,23 @@ export default function DreamChatbot({ userId, dreamId, dreamContent, interpreta
             </CardContent>
 
             {/* Input Area */}
-            <div className="flex-shrink-0 border-t bg-white p-4">
+            <div className="flex-shrink-0 border-t bg-white p-4 space-y-3">
+              {/* Quick Reply Buttons */}
+              {!isThinking && messages.length > 1 && quickReplies.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {quickReplies.map((reply, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleQuickReply(reply)}
+                      className="text-xs px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-full border border-purple-200 transition-colors"
+                    >
+                      {reply}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Input with Voice */}
               <div className="flex gap-2">
                 <Input
                   ref={inputRef}
@@ -239,18 +526,34 @@ export default function DreamChatbot({ userId, dreamId, dreamContent, interpreta
                   onChange={(e) => setUserInput(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Ask about your dream..."
-                  disabled={isThinking}
+                  disabled={isThinking || isRecording}
                   className="flex-1 border-gray-300 focus:ring-purple-500 focus:border-purple-500"
                 />
                 <Button
-                  onClick={handleSendMessage}
-                  disabled={!userInput.trim() || isThinking}
+                  variant="outline"
+                  size="sm"
+                  onClick={isRecording ? stopVoiceInput : startVoiceInput}
+                  disabled={isThinking}
+                  className={cn(
+                    "h-10 w-10 p-0",
+                    isRecording && "bg-red-50 border-red-300"
+                  )}
+                >
+                  {isRecording ? (
+                    <MicOff className="w-4 h-4 text-red-600 animate-pulse" />
+                  ) : (
+                    <Mic className="w-4 h-4 text-gray-600" />
+                  )}
+                </Button>
+                <Button
+                  onClick={() => handleSendMessage()}
+                  disabled={!userInput.trim() || isThinking || isRecording}
                   className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
                 >
                   <Send className="w-4 h-4" />
                 </Button>
               </div>
-              <p className="text-xs text-gray-500 mt-2 text-center">
+              <p className="text-xs text-gray-500 text-center">
                 I have access to 200 dreams, 90 days of moods, sleep patterns, journal entries, and life events
               </p>
             </div>
