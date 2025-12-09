@@ -85,7 +85,7 @@ export default function DreamTimeline({ userId }: DreamTimelineProps) {
 
     document.addEventListener('keydown', handleKeyPress)
     return () => document.removeEventListener('keydown', handleKeyPress)
-  }, [])
+  }, [currentDate, viewMode])
 
   const fetchTimelineData = async () => {
     setIsLoading(true)
@@ -444,7 +444,7 @@ export default function DreamTimeline({ userId }: DreamTimelineProps) {
                 <div className="text-2xl font-bold text-orange-600">{stats.totalLifeEvents}</div>
                 <div className="text-xs text-gray-600">Life Events</div>
               </div>
-              {stats.averageMood && (
+              {stats.averageMood !== null && stats.averageMood !== undefined && (
                 <div className="text-center p-3 bg-green-50 rounded-lg">
                   <div className="text-2xl font-bold text-green-600">{stats.averageMood.toFixed(1)}/5</div>
                   <div className="text-xs text-gray-600">Avg Mood</div>

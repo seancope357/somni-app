@@ -149,20 +149,23 @@ export async function GET(request: Request) {
     // Convert to array and calculate summary stats
     const timelineData = Object.values(timelineMap)
 
+    const daysWithDreams = timelineData.filter(d => d.dreamCount > 0).length
+    const totalDays = timelineData.length
+
     const stats = {
       totalDreams: dreams?.length || 0,
       totalMoodLogs: moodLogs?.length || 0,
       totalLifeEvents: lifeEvents?.length || 0,
       averageMood: moodLogs && moodLogs.length > 0
-        ? moodLogs.reduce((sum, m) => sum + m.mood, 0) / moodLogs.length
+        ? Math.round((moodLogs.reduce((sum, m) => sum + m.mood, 0) / moodLogs.length) * 10) / 10
         : null,
       averageStress: moodLogs && moodLogs.length > 0
-        ? moodLogs.reduce((sum, m) => sum + m.stress, 0) / moodLogs.length
+        ? Math.round((moodLogs.reduce((sum, m) => sum + m.stress, 0) / moodLogs.length) * 10) / 10
         : null,
       dreamFrequency: {
-        daysWithDreams: timelineData.filter(d => d.dreamCount > 0).length,
-        totalDays: timelineData.length,
-        percentage: (timelineData.filter(d => d.dreamCount > 0).length / timelineData.length) * 100
+        daysWithDreams,
+        totalDays,
+        percentage: totalDays > 0 ? Math.round((daysWithDreams / totalDays) * 100 * 10) / 10 : 0
       }
     }
 
