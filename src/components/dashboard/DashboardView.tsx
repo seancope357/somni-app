@@ -7,11 +7,13 @@ import { Badge } from '@/components/ui/badge'
 import { Loader2, Sparkles, Moon, Heart, TrendingUp, Calendar, Brain, MessageCircle, Zap } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts'
+import GamificationWidget from '@/components/gamification/GamificationWidget'
 
 interface DashboardViewProps {
   userId: string
   onInterpretClick: () => void
   onChatClick: (question: string) => void
+  onGamificationClick?: () => void
 }
 
 interface DashboardData {
@@ -36,7 +38,7 @@ interface DashboardData {
   insights: string[]
 }
 
-export default function DashboardView({ userId, onInterpretClick, onChatClick }: DashboardViewProps) {
+export default function DashboardView({ userId, onInterpretClick, onChatClick, onGamificationClick }: DashboardViewProps) {
   const [data, setData] = useState<DashboardData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -97,71 +99,83 @@ export default function DashboardView({ userId, onInterpretClick, onChatClick }:
         <p className="text-purple-200">Here's your dream journey at a glance</p>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {/* Dreams This Week */}
-        <Card className="border-0 bg-white/95 backdrop-blur-lg rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">This Week</p>
-                <p className="text-3xl font-bold text-purple-600">{data.quickStats.dreamsThisWeek}</p>
-                <p className="text-xs text-gray-500 mt-1">dreams</p>
-              </div>
-              <div className="p-3 bg-purple-100 rounded-full">
-                <Moon className="w-6 h-6 text-purple-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Gamification Widget - Hero Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Gamification Progress (spans 1 column) */}
+        <div>
+          <GamificationWidget
+            userId={userId}
+            variant="full"
+            onViewFullClick={onGamificationClick}
+          />
+        </div>
 
-        {/* Mood Streak */}
-        <Card className="border-0 bg-white/95 backdrop-blur-lg rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Mood Streak</p>
-                <p className="text-3xl font-bold text-pink-600">{data.quickStats.moodStreak}</p>
-                <p className="text-xs text-gray-500 mt-1">days</p>
+        {/* Quick Stats (spans 2 columns) */}
+        <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4 content-start">
+          {/* Dreams This Week */}
+          <Card className="border-0 bg-white/95 backdrop-blur-lg rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">This Week</p>
+                  <p className="text-3xl font-bold text-purple-600">{data.quickStats.dreamsThisWeek}</p>
+                  <p className="text-xs text-gray-500 mt-1">dreams</p>
+                </div>
+                <div className="p-3 bg-purple-100 rounded-full">
+                  <Moon className="w-6 h-6 text-purple-600" />
+                </div>
               </div>
-              <div className="p-3 bg-pink-100 rounded-full">
-                <Heart className="w-6 h-6 text-pink-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        {/* Avg Sleep */}
-        <Card className="border-0 bg-white/95 backdrop-blur-lg rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Avg Sleep</p>
-                <p className="text-3xl font-bold text-indigo-600">{data.quickStats.avgSleepHours.toFixed(1)}</p>
-                <p className="text-xs text-gray-500 mt-1">hours</p>
+          {/* Mood Streak */}
+          <Card className="border-0 bg-white/95 backdrop-blur-lg rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Mood Streak</p>
+                  <p className="text-3xl font-bold text-pink-600">{data.quickStats.moodStreak}</p>
+                  <p className="text-xs text-gray-500 mt-1">days</p>
+                </div>
+                <div className="p-3 bg-pink-100 rounded-full">
+                  <Heart className="w-6 h-6 text-pink-600" />
+                </div>
               </div>
-              <div className="p-3 bg-indigo-100 rounded-full">
-                <Zap className="w-6 h-6 text-indigo-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        {/* Life Events */}
-        <Card className="border-0 bg-white/95 backdrop-blur-lg rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Life Events</p>
-                <p className="text-3xl font-bold text-orange-600">{data.quickStats.totalLifeEvents}</p>
-                <p className="text-xs text-gray-500 mt-1">tracked</p>
+          {/* Avg Sleep */}
+          <Card className="border-0 bg-white/95 backdrop-blur-lg rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Avg Sleep</p>
+                  <p className="text-3xl font-bold text-indigo-600">{data.quickStats.avgSleepHours.toFixed(1)}</p>
+                  <p className="text-xs text-gray-500 mt-1">hours</p>
+                </div>
+                <div className="p-3 bg-indigo-100 rounded-full">
+                  <Zap className="w-6 h-6 text-indigo-600" />
+                </div>
               </div>
-              <div className="p-3 bg-orange-100 rounded-full">
-                <Calendar className="w-6 h-6 text-orange-600" />
+            </CardContent>
+          </Card>
+
+          {/* Life Events */}
+          <Card className="border-0 bg-white/95 backdrop-blur-lg rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Life Events</p>
+                  <p className="text-3xl font-bold text-orange-600">{data.quickStats.totalLifeEvents}</p>
+                  <p className="text-xs text-gray-500 mt-1">tracked</p>
+                </div>
+                <div className="p-3 bg-orange-100 rounded-full">
+                  <Calendar className="w-6 h-6 text-orange-600" />
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Main Content Grid */}
