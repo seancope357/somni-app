@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { Loader2, TrendingUp, Award, Flame, Zap, Calendar, BookOpen, Heart, Brain, Star, Trophy, Target } from 'lucide-react'
+import { Loader2, TrendingUp, Award, Flame, Zap, Calendar, BookOpen, Heart, Brain, Star, Trophy, Target, AlertCircle } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 
 interface UserStats {
@@ -50,6 +50,7 @@ export default function DashboardView({ userId }: DashboardViewProps) {
   const [achievements, setAchievements] = useState<Achievement[]>([])
   const [achievementStats, setAchievementStats] = useState<AchievementStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchDashboardData()
@@ -57,27 +58,30 @@ export default function DashboardView({ userId }: DashboardViewProps) {
 
   const fetchDashboardData = async () => {
     setIsLoading(true)
+    setError(null)
     try {
       // Fetch user stats
       const statsResponse = await fetch(`/api/user-stats?userId=${userId}`)
-      if (statsResponse.ok) {
-        const statsData = await statsResponse.json()
-        setStats(statsData)
+      if (!statsResponse.ok) {
+        const errorData = await statsResponse.json()
+        throw new Error(errorData.error || 'Failed to fetch user stats')
       }
+      const statsData = await statsResponse.json()
+      setStats(statsData)
 
       // Fetch achievements
       const achievementsResponse = await fetch(`/api/achievements?userId=${userId}`)
-      if (achievementsResponse.ok) {
-        const achievementsData = await achievementsResponse.json()
-        setAchievements(achievementsData.achievements)
-        setAchievementStats(achievementsData.stats)
+      if (!achievementsResponse.ok) {
+        const errorData = await achievementsResponse.json()
+        throw new Error(errorData.error || 'Failed to fetch achievements')
       }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to load dashboard data",
-        variant: "destructive"
-      })
+      const achievementsData = await achievementsResponse.json()
+      setAchievements(achievementsData.achievements)
+      setAchievementStats(achievementsData.stats)
+    } catch (error: any) {
+      const errorMessage = error.message || 'Failed to load dashboard data'
+      setError(errorMessage)
+      console.error('Dashboard error:', error)
     } finally {
       setIsLoading(false)
     }
@@ -91,11 +95,46 @@ export default function DashboardView({ userId }: DashboardViewProps) {
     )
   }
 
-  if (!stats) {
+  if (error || !stats) {
     return (
       <Card className="border-0 bg-white/95 backdrop-blur-lg rounded-2xl shadow-lg">
-        <CardContent className="pt-6 text-center">
-          <p className="text-gray-600">Failed to load dashboard data</p>
+        <CardHeader>
+          <CardTitle className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 text-orange-500" />
+            Gamification System Setup Required
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-gray-600">
+            The gamification system is not yet configured. To enable the dashboard, achievements, and XP tracking,
+            you need to run the database migration.
+          </p>
+
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <h3 className="font-semibold text-gray-800 mb-2">Setup Instructions:</h3>
+            <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700">
+              <li>Open your Supabase project dashboard</li>
+              <li>Navigate to the SQL Editor</li>
+              <li>Copy the contents of <code className="bg-gray-200 px-1 rounded">supabase-gamification-migration.sql</code></li>
+              <li>Paste and execute the SQL in the editor</li>
+              <li>Refresh this page</li>
+            </ol>
+          </div>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <p className="text-sm text-red-700">
+                <strong>Error details:</strong> {error}
+              </p>
+            </div>
+          )}
+
+          <Button
+            onClick={fetchDashboardData}
+            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+          >
+            Retry Loading Dashboard
+          </Button>
         </CardContent>
       </Card>
     )
