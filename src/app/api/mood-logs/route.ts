@@ -114,6 +114,40 @@ export async function POST(request: Request) {
       )
     }
 
+    // Award XP and update gamification stats
+    try {
+      // Award XP for mood logging
+      await supabase.rpc('add_xp_to_user', {
+        p_user_id: userId,
+        p_amount: 5, // XP_REWARDS.MOOD_LOGGED
+        p_reason: 'Mood logged',
+        p_related_id: data.id,
+        p_related_type: 'mood_log'
+      })
+
+      // Update mood log counter
+      await supabase.rpc('increment', {
+        table_name: 'user_stats',
+        row_id: userId,
+        column_name: 'total_mood_logs',
+        increment_by: 1
+      }).catch(() => {
+        // If increment RPC doesn't exist, update directly
+        supabase
+          .from('user_stats')
+          .update({ total_mood_logs: supabase.sql`total_mood_logs + 1` })
+          .eq('user_id', userId)
+      })
+
+      // Update streak
+      await supabase.rpc('update_user_streak', {
+        p_user_id: userId
+      })
+    } catch (gamificationError) {
+      console.error('Failed to update gamification stats:', gamificationError)
+      // Don't fail the request if gamification fails
+    }
+
     return NextResponse.json(data)
 
   } catch (error) {
