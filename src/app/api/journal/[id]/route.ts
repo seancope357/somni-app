@@ -1,12 +1,8 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabaseServer } from '@/lib/supabase-server'
 
 export const runtime = 'nodejs'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
 // Update journal entry
 export async function PUT(
@@ -14,6 +10,15 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    const supabase = getSupabaseServer()
+
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Supabase not configured. Please set environment variables.' },
+        { status: 503 }
+      )
+    }
+
     const id = params.id
     const body = await request.json()
     const {
@@ -81,6 +86,15 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const supabase = getSupabaseServer()
+
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Supabase not configured. Please set environment variables.' },
+        { status: 503 }
+      )
+    }
+
     const id = params.id
 
     // Get the entry first to check if it's linked to a dream

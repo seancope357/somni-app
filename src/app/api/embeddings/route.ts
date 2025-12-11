@@ -1,21 +1,37 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabaseServer } from '@/lib/supabase-server'
 import OpenAI from 'openai'
 
 export const runtime = 'nodejs'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!
-})
+function getOpenAI() {
+  const apiKey = process.env.OPENAI_API_KEY
+  if (!apiKey) {
+    return null
+  }
+  return new OpenAI({ apiKey })
+}
 
 // Generate embedding for a single dream
 export async function POST(request: Request) {
   try {
+    const supabase = getSupabaseServer()
+    const openai = getOpenAI()
+
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Supabase not configured. Please set environment variables.' },
+        { status: 503 }
+      )
+    }
+
+    if (!openai) {
+      return NextResponse.json(
+        { error: 'OpenAI API key not configured.' },
+        { status: 503 }
+      )
+    }
+
     const { dreamId, userId } = await request.json()
 
     if (!dreamId || !userId) {
@@ -95,6 +111,23 @@ export async function POST(request: Request) {
 // Batch generate embeddings for all dreams without embeddings
 export async function PUT(request: Request) {
   try {
+    const supabase = getSupabaseServer()
+    const openai = getOpenAI()
+
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Supabase not configured. Please set environment variables.' },
+        { status: 503 }
+      )
+    }
+
+    if (!openai) {
+      return NextResponse.json(
+        { error: 'OpenAI API key not configured.' },
+        { status: 503 }
+      )
+    }
+
     const { userId } = await request.json()
 
     if (!userId) {

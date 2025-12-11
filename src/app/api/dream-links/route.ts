@@ -1,16 +1,21 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabaseServer } from '@/lib/supabase-server'
 
 export const runtime = 'nodejs'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
 // Get linked events for a dream
 export async function GET(request: Request) {
   try {
+    const supabase = getSupabaseServer()
+
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Supabase not configured. Please set environment variables.' },
+        { status: 503 }
+      )
+    }
+
     const { searchParams } = new URL(request.url)
     const dreamId = searchParams.get('dreamId')
     const userId = searchParams.get('userId')
@@ -71,6 +76,15 @@ export async function GET(request: Request) {
 // Link a dream to a life event
 export async function POST(request: Request) {
   try {
+    const supabase = getSupabaseServer()
+
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Supabase not configured. Please set environment variables.' },
+        { status: 503 }
+      )
+    }
+
     const body = await request.json()
     const { dreamId, lifeEventId, userId } = body
 
@@ -150,6 +164,15 @@ export async function POST(request: Request) {
 // Unlink a dream from a life event
 export async function DELETE(request: Request) {
   try {
+    const supabase = getSupabaseServer()
+
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Supabase not configured. Please set environment variables.' },
+        { status: 503 }
+      )
+    }
+
     const { searchParams } = new URL(request.url)
     const dreamId = searchParams.get('dreamId')
     const lifeEventId = searchParams.get('lifeEventId')

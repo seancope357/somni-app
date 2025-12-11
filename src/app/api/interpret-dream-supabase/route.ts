@@ -1,20 +1,19 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabaseServer } from '@/lib/supabase-server'
 import Groq from 'groq-sdk'
+
+function getGroq() {
+  const apiKey = process.env.GROQ_API_KEY
+  if (!apiKey) return null
+  return new Groq({ apiKey })
+}
 
 // Force Node.js runtime for Groq SDK compatibility
 export const runtime = 'nodejs'
 
 // Create Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
 // Create Groq client
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY!
-})
 
 // Helper function to parse multi-perspective interpretation
 function parseInterpretationResponse(responseText: string) {
@@ -66,6 +65,15 @@ function parseInterpretationResponse(responseText: string) {
 
 export async function POST(request: Request) {
   console.log('=== Multi-Perspective Dream Interpretation Request Started ===')
+    const supabase = getSupabaseServer()
+
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Supabase not configured. Please set environment variables.' },
+        { status: 503 }
+      )
+    }
+
   console.log('GROQ_API_KEY exists:', !!process.env.GROQ_API_KEY)
   console.log('SUPABASE_URL exists:', !!process.env.NEXT_PUBLIC_SUPABASE_URL)
   

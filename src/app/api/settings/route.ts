@@ -1,16 +1,21 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabaseServer } from '@/lib/supabase-server'
 
 export const runtime = 'nodejs'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
 // Get user settings
 export async function GET(request: Request) {
   try {
+    const supabase = getSupabaseServer()
+
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Supabase not configured. Please set environment variables.' },
+        { status: 503 }
+      )
+    }
+
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get('userId')
 
@@ -65,6 +70,15 @@ export async function GET(request: Request) {
 // Create or update user settings
 export async function POST(request: Request) {
   try {
+    const supabase = getSupabaseServer()
+
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Supabase not configured. Please set environment variables.' },
+        { status: 503 }
+      )
+    }
+
     const body = await request.json()
     const {
       userId,

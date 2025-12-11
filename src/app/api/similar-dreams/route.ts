@@ -1,12 +1,8 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabaseServer } from '@/lib/supabase-server'
 
 export const runtime = 'nodejs'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
 // Calculate cosine similarity between two vectors
 function cosineSimilarity(vecA: number[], vecB: number[]): number {
@@ -29,6 +25,15 @@ function cosineSimilarity(vecA: number[], vecB: number[]): number {
 // Find similar dreams using vector similarity
 export async function GET(request: Request) {
   try {
+    const supabase = getSupabaseServer()
+
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Supabase not configured. Please set environment variables.' },
+        { status: 503 }
+      )
+    }
+
     const { searchParams } = new URL(request.url)
     const dreamId = searchParams.get('dreamId')
     const userId = searchParams.get('userId')

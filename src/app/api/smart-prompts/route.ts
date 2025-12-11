@@ -1,20 +1,37 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabaseServer } from '@/lib/supabase-server'
 import Groq from 'groq-sdk'
+
+function getGroq() {
+  const apiKey = process.env.GROQ_API_KEY
+  if (!apiKey) return null
+  return new Groq({ apiKey })
+}
 
 export const runtime = 'nodejs'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY!
-})
 
 export async function GET(request: Request) {
   try {
+    const groq = getGroq()
+
+    if (!groq) {
+      return NextResponse.json(
+        { error: 'Groq API key not configured.' },
+        { status: 503 }
+      )
+    }
+
+    const supabase = getSupabaseServer()
+
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Supabase not configured. Please set environment variables.' },
+        { status: 503 }
+      )
+    }
+
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get('userId')
 
