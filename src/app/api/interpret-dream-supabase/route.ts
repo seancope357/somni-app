@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Groq from 'groq-sdk'
+import { awardXP, updateStreak, checkAchievements, updateDailyStats } from '@/lib/gamification'
+import type { CelebrationEvent } from '@/types/gamification'
 
 // Force Node.js runtime for Groq SDK compatibility
 export const runtime = 'nodejs'
@@ -314,6 +316,16 @@ Use the personal context provided to tailor your interpretation to this specific
 
     // Save to database if requested
     let savedDream = null
+    let gamificationData: {
+      xp_awarded?: number
+      level_up?: boolean
+      new_level?: number
+      streak_count?: number
+      streak_milestone?: boolean
+      celebrations?: CelebrationEvent[]
+      newly_unlocked_achievements?: any[]
+    } = {}
+
     if (saveToHistory) {
       console.log('Saving dream to database...')
       const { data, error } = await supabase
@@ -346,9 +358,77 @@ Use the personal context provided to tailor your interpretation to this specific
 
       savedDream = data
       console.log('Dream saved successfully')
+
+      // GAMIFICATION INTEGRATION
+      try {
+        const today = new Date().toISOString().split('T')[0]
+        const celebrations: CelebrationEvent[] = []
+
+        // 1. Award XP for logging dream
+        console.log('Awarding XP for dream...')
+        const dreamXP = dream.length > 500 ? 20 : 10 // Bonus XP for detailed dreams
+        const xpResult = await awardXP(userId, dreamXP, dream.length > 500 ? 'Detailed dream logged' : 'Dream logged')
+        gamificationData.xp_awarded = dreamXP
+
+        if (xpResult.level_up && xpResult.celebration) {
+          gamificationData.level_up = true
+          gamificationData.new_level = xpResult.new_level
+          celebrations.push(xpResult.celebration)
+        }
+
+        // 2. Update dream streak
+        console.log('Updating dream streak...')
+        const streakResult = await updateStreak(userId, 'dream', today)
+        gamificationData.streak_count = streakResult.streak
+        gamificationData.streak_milestone = streakResult.milestone
+
+        if (streakResult.milestone) {
+          celebrations.push({
+            type: 'streak_milestone',
+            title: `${streakResult.streak}-Day Streak!`,
+            description: `You're on fire! ${streakResult.streak} days of consistent dream logging.`,
+            icon: '🔥',
+            animation: 'fireworks',
+            xp_reward: streakResult.xp_awarded || 0
+          })
+        }
+
+        // 3. Check for achievements
+        console.log('Checking achievements...')
+        const achievementCheck = await checkAchievements(userId, 'dream_logged')
+
+        if (achievementCheck.newly_unlocked.length > 0) {
+          gamificationData.newly_unlocked_achievements = achievementCheck.newly_unlocked
+
+          // Add celebration for each achievement
+          for (const achievement of achievementCheck.newly_unlocked) {
+            celebrations.push({
+              type: 'achievement',
+              title: 'Achievement Unlocked!',
+              description: achievement.name,
+              icon: achievement.icon,
+              animation: 'confetti',
+              xp_reward: achievement.xp_reward
+            })
+          }
+        }
+
+        // 4. Update daily stats
+        console.log('Updating daily stats...')
+        await updateDailyStats(userId, {
+          dreams_logged: 1
+        })
+
+        gamificationData.celebrations = celebrations
+        console.log(`Gamification complete: ${dreamXP} XP, ${celebrations.length} celebrations`)
+
+      } catch (gamificationError) {
+        console.error('Gamification error (non-critical):', gamificationError)
+        // Don't throw - gamification failure shouldn't break dream saving
+      }
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       interpretation: parsedData.synthesized_analysis, // Return synthesis as main interpretation
       fullInterpretation: parsedData.fullInterpretation,
       perspectives: {
@@ -372,7 +452,8 @@ Use the personal context provided to tailor your interpretation to this specific
         stress: moodLog.stress,
         energy: moodLog.energy,
         emoji: moodEmojis[moodLog.mood - 1]
-      } : null
+      } : null,
+      gamification: gamificationData
     })
 
   } catch (error: any) {
