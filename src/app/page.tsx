@@ -127,6 +127,36 @@ export default function Home() {
     return descriptions[perspective]
   }
 
+  const getPerspectiveDetails = (perspective: PerspectiveType) => {
+    const details: Record<PerspectiveType, { title: string; description: string; focus: string; icon: string }> = {
+      synthesized: {
+        title: 'Synthesized Perspective',
+        description: 'A comprehensive integration of all psychological approaches, offering a balanced and holistic understanding of your dream.',
+        focus: 'Combines archetypal, psychodynamic, and cognitive insights for a complete picture',
+        icon: '🌐'
+      },
+      jungian: {
+        title: 'Jungian Perspective',
+        description: 'Based on Carl Jung\'s analytical psychology, this perspective explores universal symbols (archetypes) and the collective unconscious shared across humanity.',
+        focus: 'Focuses on: The Shadow, Anima/Animus, Self, personal growth through dreams, and symbolic meaning',
+        icon: '🎭'
+      },
+      freudian: {
+        title: 'Freudian Perspective',
+        description: 'Following Sigmund Freud\'s psychoanalytic theory, this view interprets dreams as the "royal road to the unconscious" revealing hidden wishes and repressed desires.',
+        focus: 'Focuses on: Wish fulfillment, unconscious conflicts, childhood experiences, and symbolic disguises',
+        icon: '🧠'
+      },
+      cognitive: {
+        title: 'Cognitive/Evolutionary Perspective',
+        description: 'A modern scientific approach viewing dreams as the brain\'s way of processing information, consolidating memories, and preparing for future challenges.',
+        focus: 'Focuses on: Memory consolidation, problem-solving, threat simulation, and emotional regulation',
+        icon: '⚡'
+      }
+    }
+    return details[perspective]
+  }
+
   const getDisplayedInterpretation = (): string => {
     if (!perspectives) return interpretation
     return perspectives[preferredPerspective] || interpretation
@@ -790,23 +820,44 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
                   
                   {/* Perspective Selector */}
                   {perspectives && (
-                    <div className="mt-4 flex flex-col items-center space-y-2">
-                      <label className="text-xs text-gray-500 font-medium">
-                        Analysis Perspective
-                      </label>
-                      <select
-                        value={preferredPerspective}
-                        onChange={(e) => updatePreferredPerspective(e.target.value as PerspectiveType)}
-                        className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
-                      >
-                        <option value="synthesized">Synthesized</option>
-                        <option value="jungian">Jungian</option>
-                        <option value="freudian">Freudian</option>
-                        <option value="cognitive">Cognitive</option>
-                      </select>
-                      <p className="text-xs text-gray-500 text-center max-w-md">
-                        {getPerspectiveDescription(preferredPerspective)}
-                      </p>
+                    <div className="mt-4 flex flex-col items-center space-y-4">
+                      <div className="flex flex-col items-center space-y-2">
+                        <label className="text-xs text-gray-500 font-medium">
+                          Analysis Perspective
+                        </label>
+                        <select
+                          value={preferredPerspective}
+                          onChange={(e) => updatePreferredPerspective(e.target.value as PerspectiveType)}
+                          className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white font-medium"
+                        >
+                          <option value="synthesized">🌐 Synthesized</option>
+                          <option value="jungian">🎭 Jungian</option>
+                          <option value="freudian">🧠 Freudian</option>
+                          <option value="cognitive">⚡ Cognitive</option>
+                        </select>
+                      </div>
+
+                      {/* Educational Info Card */}
+                      <div className="w-full max-w-2xl p-4 bg-gradient-to-br from-purple-50 via-indigo-50 to-pink-50 rounded-xl border border-purple-200 shadow-sm">
+                        <div className="flex items-start gap-3">
+                          <div className="text-3xl flex-shrink-0 mt-1">
+                            {getPerspectiveDetails(preferredPerspective).icon}
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-serif font-semibold text-gray-800 mb-1">
+                              {getPerspectiveDetails(preferredPerspective).title}
+                            </h4>
+                            <p className="text-sm text-gray-700 mb-2 leading-relaxed">
+                              {getPerspectiveDetails(preferredPerspective).description}
+                            </p>
+                            <div className="bg-white/60 rounded-lg p-2 border border-purple-100">
+                              <p className="text-xs text-gray-600 italic">
+                                {getPerspectiveDetails(preferredPerspective).focus}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </CardHeader>
