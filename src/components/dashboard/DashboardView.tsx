@@ -92,7 +92,7 @@ export default function DashboardView({ userId, onInterpretClick, onChatClick, o
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Welcome Header */}
       <div className="text-center space-y-2">
         <h2 className="text-3xl font-serif text-white">Welcome Back</h2>
@@ -179,9 +179,9 @@ export default function DashboardView({ userId, onInterpretClick, onChatClick, o
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         {/* Recent Dreams - Takes 2 columns on large screens */}
-        <div className="lg:col-span-2 space-y-4">
+        <div className="lg:col-span-2 space-y-6">
           <Card className="border-0 bg-white/95 backdrop-blur-lg rounded-2xl shadow-lg">
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -263,7 +263,7 @@ export default function DashboardView({ userId, onInterpretClick, onChatClick, o
         </div>
 
         {/* Right Column */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           {/* Mood Chart */}
           <Card className="border-0 bg-white/95 backdrop-blur-lg rounded-2xl shadow-lg">
             <CardHeader>

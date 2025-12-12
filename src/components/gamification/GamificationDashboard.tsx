@@ -157,10 +157,10 @@ export default function GamificationDashboard({ userId }: GamificationDashboardP
         </TabsList>
 
         {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-6">
+        <TabsContent value="overview" className="space-y-8">
           {/* Streaks Section */}
           <div>
-            <h3 className="text-lg font-serif font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <h3 className="text-lg font-serif font-semibold text-white mb-4 flex items-center gap-2">
               <span>🔥</span> Your Streaks
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -189,8 +189,8 @@ export default function GamificationDashboard({ userId }: GamificationDashboardP
           {data.recent_achievements.length > 0 && (
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-serif font-semibold text-gray-800 flex items-center gap-2">
-                  <Trophy className="w-5 h-5 text-yellow-600" />
+                <h3 className="text-lg font-serif font-semibold text-white flex items-center gap-2">
+                  <Trophy className="w-5 h-5 text-yellow-400" />
                   Recent Achievements
                 </h3>
                 <Button
@@ -223,8 +223,8 @@ export default function GamificationDashboard({ userId }: GamificationDashboardP
           {data.active_goals.length > 0 && (
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-serif font-semibold text-gray-800 flex items-center gap-2">
-                  <Target className="w-5 h-5 text-blue-600" />
+                <h3 className="text-lg font-serif font-semibold text-white flex items-center gap-2">
+                  <Target className="w-5 h-5 text-blue-400" />
                   Active Goals
                 </h3>
               </div>
