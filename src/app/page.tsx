@@ -591,102 +591,146 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
 
         {/* Navigation - Mobile optimized */}
         <div className="flex justify-center mb-4 sm:mb-8">
-          <div className="bg-white/10 backdrop-blur-lg rounded-full p-1 flex flex-wrap justify-center gap-1">
+          <div className="bg-white/95 backdrop-blur-lg rounded-2xl p-1.5 flex flex-wrap justify-center gap-1.5 shadow-xl border border-white/40">
             <Button
-              variant={currentView === 'dashboard' ? 'default' : 'ghost'}
+              variant="ghost"
               size="sm"
               onClick={() => setCurrentView('dashboard')}
-              className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium"
+              className={`rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-300 ease-in-out ${
+                currentView === 'dashboard'
+                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/50 border-b-2 border-indigo-300 hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl hover:shadow-indigo-500/60'
+                  : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900 hover:scale-105 hover:shadow-md'
+              } active:scale-95`}
             >
               <HomeIcon className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
               <span className="hidden sm:inline">Home</span>
             </Button>
             <Button
-              variant={currentView === 'interpret' ? 'default' : 'ghost'}
+              variant="ghost"
               size="sm"
               onClick={() => setCurrentView('interpret')}
-              className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium"
+              className={`rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-300 ease-in-out ${
+                currentView === 'interpret'
+                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/50 border-b-2 border-indigo-300 hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl hover:shadow-indigo-500/60'
+                  : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900 hover:scale-105 hover:shadow-md'
+              } active:scale-95`}
             >
               <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
               <span className="hidden sm:inline">Interpret</span>
             </Button>
             <Button
-              variant={currentView === 'history' ? 'default' : 'ghost'}
+              variant="ghost"
               size="sm"
               onClick={() => setCurrentView('history')}
-              className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium"
+              className={`rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-300 ease-in-out ${
+                currentView === 'history'
+                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/50 border-b-2 border-indigo-300 hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl hover:shadow-indigo-500/60'
+                  : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900 hover:scale-105 hover:shadow-md'
+              } active:scale-95`}
             >
               <History className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
               <span className="hidden sm:inline">History</span>
             </Button>
             <Button
-              variant={currentView === 'patterns' ? 'default' : 'ghost'}
+              variant="ghost"
               size="sm"
               onClick={() => setCurrentView('patterns')}
-              className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium"
+              className={`rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-300 ease-in-out ${
+                currentView === 'patterns'
+                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/50 border-b-2 border-indigo-300 hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl hover:shadow-indigo-500/60'
+                  : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900 hover:scale-105 hover:shadow-md'
+              } active:scale-95`}
             >
               <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
               <span className="hidden sm:inline">Patterns</span>
             </Button>
             <Button
-              variant={currentView === 'gamification' ? 'default' : 'ghost'}
+              variant="ghost"
               size="sm"
               onClick={() => setCurrentView('gamification')}
-              className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium bg-gradient-to-r from-purple-600/10 to-pink-600/10 hover:from-purple-600/20 hover:to-pink-600/20"
+              className={`rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-300 ease-in-out ${
+                currentView === 'gamification'
+                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/50 border-b-2 border-pink-300 hover:from-purple-700 hover:to-pink-700 hover:shadow-xl hover:shadow-purple-500/60'
+                  : 'bg-gradient-to-r from-purple-600/10 to-pink-600/10 text-slate-700 hover:from-purple-600/20 hover:to-pink-600/20 hover:text-slate-900 hover:scale-105 hover:shadow-md hover:shadow-purple-500/20'
+              } active:scale-95`}
             >
-              <Trophy className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2 text-yellow-600" />
+              <Trophy className={`w-3 h-3 sm:w-4 sm:h-4 sm:mr-2 ${currentView === 'gamification' ? 'text-yellow-300' : 'text-yellow-600'}`} />
               <span className="hidden sm:inline">Progress</span>
             </Button>
             <Button
-              variant={currentView === 'journal' ? 'default' : 'ghost'}
+              variant="ghost"
               size="sm"
               onClick={() => setCurrentView('journal')}
-              className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium"
+              className={`rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-300 ease-in-out ${
+                currentView === 'journal'
+                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/50 border-b-2 border-indigo-300 hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl hover:shadow-indigo-500/60'
+                  : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900 hover:scale-105 hover:shadow-md'
+              } active:scale-95`}
             >
               <BookOpen className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
               <span className="hidden sm:inline">Journal</span>
             </Button>
             <Button
-              variant={currentView === 'events' ? 'default' : 'ghost'}
+              variant="ghost"
               size="sm"
               onClick={() => setCurrentView('events')}
-              className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium"
+              className={`rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-300 ease-in-out ${
+                currentView === 'events'
+                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/50 border-b-2 border-indigo-300 hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl hover:shadow-indigo-500/60'
+                  : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900 hover:scale-105 hover:shadow-md'
+              } active:scale-95`}
             >
               <Calendar className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
               <span className="hidden sm:inline">Events</span>
             </Button>
             <Button
-              variant={currentView === 'insights' ? 'default' : 'ghost'}
+              variant="ghost"
               size="sm"
               onClick={() => setCurrentView('insights')}
-              className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium"
+              className={`rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-300 ease-in-out ${
+                currentView === 'insights'
+                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/50 border-b-2 border-indigo-300 hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl hover:shadow-indigo-500/60'
+                  : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900 hover:scale-105 hover:shadow-md'
+              } active:scale-95`}
             >
               <Lightbulb className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
               <span className="hidden sm:inline">Insights</span>
             </Button>
             <Button
-              variant={currentView === 'digest' ? 'default' : 'ghost'}
+              variant="ghost"
               size="sm"
               onClick={() => setCurrentView('digest')}
-              className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium"
+              className={`rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-300 ease-in-out ${
+                currentView === 'digest'
+                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/50 border-b-2 border-indigo-300 hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl hover:shadow-indigo-500/60'
+                  : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900 hover:scale-105 hover:shadow-md'
+              } active:scale-95`}
             >
               <Mail className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
               <span className="hidden sm:inline">Digest</span>
             </Button>
             <Button
-              variant={currentView === 'timeline' ? 'default' : 'ghost'}
+              variant="ghost"
               size="sm"
               onClick={() => setCurrentView('timeline')}
-              className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium"
+              className={`rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-300 ease-in-out ${
+                currentView === 'timeline'
+                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/50 border-b-2 border-indigo-300 hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl hover:shadow-indigo-500/60'
+                  : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900 hover:scale-105 hover:shadow-md'
+              } active:scale-95`}
             >
               <CalendarDays className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
               <span className="hidden sm:inline">Timeline</span>
             </Button>
             <Button
-              variant={currentView === 'settings' ? 'default' : 'ghost'}
+              variant="ghost"
               size="sm"
               onClick={() => setCurrentView('settings')}
-              className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium"
+              className={`rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-300 ease-in-out ${
+                currentView === 'settings'
+                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/50 border-b-2 border-indigo-300 hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl hover:shadow-indigo-500/60'
+                  : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900 hover:scale-105 hover:shadow-md'
+              } active:scale-95`}
             >
               <Settings className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
               <span className="hidden sm:inline">Settings</span>
