@@ -92,7 +92,7 @@ export default function DashboardView({ userId, onInterpretClick, onChatClick, o
   }
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
       {/* Welcome Header */}
       <div className="text-center space-y-2">
         <h2 className="text-3xl font-serif text-white">Welcome Back</h2>
@@ -100,9 +100,9 @@ export default function DashboardView({ userId, onInterpretClick, onChatClick, o
       </div>
 
       {/* Gamification Widget - Hero Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {/* Gamification Progress (spans 1 column) */}
-        <div>
+        <div className="xl:col-span-1">
           <GamificationWidget
             userId={userId}
             variant="full"
@@ -110,8 +110,8 @@ export default function DashboardView({ userId, onInterpretClick, onChatClick, o
           />
         </div>
 
-        {/* Quick Stats (spans 2 columns) */}
-        <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4 content-start">
+        {/* Quick Stats (spans 2 columns on lg, 3 columns on xl) */}
+        <div className="lg:col-span-2 xl:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-4 content-start">
           {/* Dreams This Week */}
           <Card className="border-0 bg-white/95 backdrop-blur-lg rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
             <CardContent className="pt-6">
@@ -179,9 +179,9 @@ export default function DashboardView({ userId, onInterpretClick, onChatClick, o
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-        {/* Recent Dreams - Takes 2 columns on large screens */}
-        <div className="lg:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+        {/* Recent Dreams - Takes 2 columns on lg, 3 columns on xl */}
+        <div className="lg:col-span-2 xl:col-span-3 space-y-6">
           <Card className="border-0 bg-white/95 backdrop-blur-lg rounded-2xl shadow-lg">
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -262,8 +262,8 @@ export default function DashboardView({ userId, onInterpretClick, onChatClick, o
           )}
         </div>
 
-        {/* Right Column */}
-        <div className="space-y-6">
+        {/* Right Column - 1 column on both lg and xl */}
+        <div className="lg:col-span-1 xl:col-span-1 space-y-6">
           {/* Mood Chart */}
           <Card className="border-0 bg-white/95 backdrop-blur-lg rounded-2xl shadow-lg">
             <CardHeader>
