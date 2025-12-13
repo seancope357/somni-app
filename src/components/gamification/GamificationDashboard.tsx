@@ -10,6 +10,7 @@ import { toast } from '@/hooks/use-toast'
 import StreakCounter from './StreakCounter'
 import AchievementCard from './AchievementCard'
 import CelebrationModal from './CelebrationModal'
+import GoalsManagementView from './GoalsManagementView'
 import type { GamificationDashboard as DashboardData, CelebrationEvent } from '@/types/gamification'
 
 interface GamificationDashboardProps {
@@ -328,16 +329,7 @@ export default function GamificationDashboard({ userId }: GamificationDashboardP
 
         {/* Goals Tab */}
         <TabsContent value="goals">
-          <Card>
-            <CardHeader>
-              <CardTitle>Manage Goals</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-500">
-                Full goal management interface (implement separately with create/edit/delete)
-              </p>
-            </CardContent>
-          </Card>
+          <GoalsManagementView userId={userId} />
         </TabsContent>
       </Tabs>
 

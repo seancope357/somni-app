@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Groq from 'groq-sdk'
-import { awardXP, updateStreak, checkAchievements, updateDailyStats } from '@/lib/gamification'
+import { awardXP, updateStreak, checkAchievements, updateDailyStats, updateGoalProgress } from '@/lib/gamification'
 import type { CelebrationEvent } from '@/types/gamification'
 
 // Force Node.js runtime for Groq SDK compatibility
@@ -519,6 +519,24 @@ Use the personal context provided to tailor your interpretation to this specific
         await updateDailyStats(userId, {
           dreams_logged: 1
         })
+
+        // 5. Update goal progress
+        console.log('Updating goal progress...')
+        const completedGoals = await updateGoalProgress(userId, 'dream_count', 1)
+
+        if (completedGoals.length > 0) {
+          // Add celebration for each completed goal
+          for (const goalId of completedGoals) {
+            celebrations.push({
+              type: 'goal_completed',
+              title: 'Goal Completed!',
+              description: 'You've reached your dream logging goal!',
+              icon: '🎯',
+              animation: 'fireworks',
+              xp_reward: 50
+            })
+          }
+        }
 
         gamificationData.celebrations = celebrations
         console.log(`Gamification complete: ${dreamXP} XP, ${celebrations.length} celebrations`)
