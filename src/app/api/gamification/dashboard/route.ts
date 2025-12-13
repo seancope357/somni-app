@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { calculateXPForLevel, getTitleForLevel } from '@/lib/gamification'
+import { getDateDaysAgo } from '@/lib/date-utils'
 import type { GamificationDashboard } from '@/types/gamification'
 
 export const runtime = 'nodejs'
@@ -227,12 +228,6 @@ export async function GET(request: Request) {
 }
 
 // Helper functions
-function getDateDaysAgo(days: number): string {
-  const date = new Date()
-  date.setDate(date.getDate() - days)
-  return date.toISOString().split('T')[0]
-}
-
 function getXPForPreviousLevel(currentLevel: number): number {
   let totalXP = 0
   for (let i = 1; i < currentLevel; i++) {

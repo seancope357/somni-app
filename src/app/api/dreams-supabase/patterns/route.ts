@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { isThisWeek, isThisMonth } from '@/lib/date-utils'
 
 // Create Supabase client
 const supabase = createClient(
@@ -111,18 +112,9 @@ export async function GET(request: Request) {
       topEmotions,
       topThemes,
       dreamFrequency: dreams.length > 0 ? {
-        thisWeek: dreams.filter(d => {
-          const dreamDate = new Date(d.created_at)
-          const weekAgo = new Date()
-          weekAgo.setDate(weekAgo.getDate() - 7)
-          return dreamDate >= weekAgo
-        }).length,
-        thisMonth: dreams.filter(d => {
-          const dreamDate = new Date(d.created_at)
-          const monthAgo = new Date()
-          monthAgo.setMonth(monthAgo.getMonth() - 1)
-          return dreamDate >= monthAgo
-        }).length
+        // Use standardized date utilities for consistent "this week" and "this month" calculations
+        thisWeek: dreams.filter(d => isThisWeek(d.created_at)).length,
+        thisMonth: dreams.filter(d => isThisMonth(d.created_at)).length
       } : { thisWeek: 0, thisMonth: 0 },
       sleepStats,
       sleepChartData

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getStartOfWeek, getDateDaysAgo } from '@/lib/date-utils'
 
 export const runtime = 'nodejs'
 
@@ -17,17 +18,16 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'User ID required' }, { status: 401 })
     }
 
-    // Calculate date ranges
-    const now = new Date()
-    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+    // Calculate date ranges using standardized utilities
+    const weekAgoDate = getStartOfWeek()
+    const thirtyDaysAgoDate = getDateDaysAgo(30)
 
-    // Fetch dreams this week
+    // Fetch dreams this week (comparing date portion only for consistency)
     const { data: dreamsThisWeek } = await supabase
       .from('dreams')
       .select('id')
       .eq('user_id', userId)
-      .gte('created_at', weekAgo.toISOString())
+      .gte('created_at', weekAgoDate)
 
     // Fetch recent dreams (last 3)
     const { data: recentDreams } = await supabase
@@ -54,7 +54,7 @@ export async function GET(request: Request) {
       .from('mood_logs')
       .select('mood, stress, energy, log_date')
       .eq('user_id', userId)
-      .gte('log_date', thirtyDaysAgo.toISOString().split('T')[0])
+      .gte('log_date', thirtyDaysAgoDate)
       .order('log_date', { ascending: false })
 
     // Calculate mood streak (consecutive days with logs)
@@ -78,6 +78,7 @@ export async function GET(request: Request) {
 
     // Prepare mood chart data (last 7 days)
     const moodChartData = []
+    const now = new Date()
     for (let i = 6; i >= 0; i--) {
       const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
       const dateStr = date.toISOString().split('T')[0]
