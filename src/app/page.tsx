@@ -29,6 +29,8 @@ import DreamChatbot from '@/components/chat/DreamChatbot'
 import FloatingChatButton from '@/components/chat/FloatingChatButton'
 import DashboardView from '@/components/dashboard/DashboardView'
 import GamificationDashboard from '@/components/gamification/GamificationDashboard'
+import CelebrationModal from '@/components/gamification/CelebrationModal'
+import type { CelebrationEvent, Achievement } from '@/types/gamification'
 
 interface Dream {
   id: string
@@ -96,6 +98,9 @@ export default function Home() {
     interpretation: string
     dreamId?: string
   } | null>(null)
+  const [celebrations, setCelebrations] = useState<CelebrationEvent[]>([])
+  const [newAchievements, setNewAchievements] = useState<Achievement[]>([])
+  const [showCelebration, setShowCelebration] = useState(false)
 
   // Load preferred perspective from localStorage
   useEffect(() => {
@@ -244,7 +249,7 @@ export default function Home() {
       const data = await response.json()
       setInterpretation(data.interpretation)
       setMoodContext(data.moodContext)
-      
+
       // Store perspectives and reflection questions
       if (data.perspectives) {
         setPerspectives(data.perspectives)
@@ -252,7 +257,35 @@ export default function Home() {
       if (data.reflection_questions) {
         setReflectionQuestions(data.reflection_questions)
       }
-      
+
+      // Handle gamification celebrations
+      if (data.gamification) {
+        const { xp_awarded, level_up, new_level, celebrations: gamificationCelebrations } = data.gamification
+
+        // Show XP toast notification
+        if (xp_awarded > 0) {
+          toast({
+            title: level_up ? `🎉 Level Up! You're now Level ${new_level}` : "XP Earned!",
+            description: `+${xp_awarded} XP ${level_up ? `- You've reached Level ${new_level}!` : ''}`,
+            duration: 5000,
+          })
+        }
+
+        // Display celebration modal if there are celebrations
+        if (gamificationCelebrations && gamificationCelebrations.length > 0) {
+          setCelebrations(gamificationCelebrations)
+
+          // Extract achievements from celebrations
+          const achievementCelebrations = gamificationCelebrations.filter(
+            (c: CelebrationEvent) => c.type === 'achievement'
+          )
+          // Note: We'll need to fetch full achievement details if needed
+          // For now, celebrations contain the basic info
+
+          setShowCelebration(true)
+        }
+      }
+
       if (saveToHistory && data.savedDream) {
         toast({
           title: "Dream saved!",
@@ -1399,6 +1432,14 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
           }}
         />
       )}
+
+      {/* Celebration Modal - Shows XP, level ups, and achievement unlocks */}
+      <CelebrationModal
+        isOpen={showCelebration}
+        onClose={() => setShowCelebration(false)}
+        celebrations={celebrations}
+        newAchievements={newAchievements}
+      />
     </div>
   )
 }

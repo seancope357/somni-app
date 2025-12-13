@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { awardXP, checkAchievements } from '@/lib/gamification'
 
 export const runtime = 'nodejs'
 
@@ -101,6 +102,15 @@ export async function POST(request: Request) {
         { error: 'Failed to create life event' },
         { status: 500 }
       )
+    }
+
+    // Gamification: Award XP for creating a life event
+    try {
+      await awardXP(userId, 10, 'Life event logged')
+      await checkAchievements(userId)
+    } catch (gamificationError) {
+      console.error('Gamification error (non-blocking):', gamificationError)
+      // Don't fail the request if gamification fails
     }
 
     return NextResponse.json(data)

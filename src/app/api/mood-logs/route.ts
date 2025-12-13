@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { awardXP, updateStreak, checkAchievements } from '@/lib/gamification'
+import { awardXP, updateStreak, checkAchievements, updateDailyStats } from '@/lib/gamification'
 
 export const runtime = 'nodejs'
 
@@ -101,11 +101,11 @@ export async function POST(request: Request) {
       )
     }
 
-    // Gamification: Award XP and update streak
+    // Gamification: Award XP, update streak, and track daily stats
     try {
       await awardXP(userId, 5, 'Mood logged')
       await updateStreak(userId, 'mood', log_date)
-      await updateStreak(userId, 'wellness', log_date) // Mood contributes to wellness
+      await updateDailyStats(userId, { moods_logged: 1 })
       await checkAchievements(userId)
     } catch (gamificationError) {
       console.error('Gamification error (non-blocking):', gamificationError)

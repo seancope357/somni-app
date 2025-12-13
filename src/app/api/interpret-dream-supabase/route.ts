@@ -109,6 +109,51 @@ export async function POST(request: Request) {
 
     console.log('Mood log for today:', moodLog ? 'Found' : 'Not found')
 
+    // Fetch recent dreams for pattern context (last 30 dreams)
+    const { data: recentDreams } = await supabase
+      .from('dreams')
+      .select('content, created_at, symbols, themes, emotions')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(30)
+
+    console.log('Recent dreams fetched:', recentDreams?.length || 0)
+
+    // Fetch active life events (events within last 30 days or ongoing)
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+    const { data: lifeEvents } = await supabase
+      .from('life_events')
+      .select('title, category, intensity, date_start, description')
+      .eq('user_id', userId)
+      .gte('date_start', thirtyDaysAgo.toISOString().split('T')[0])
+      .order('date_start', { ascending: false })
+      .limit(10)
+
+    console.log('Active life events fetched:', lifeEvents?.length || 0)
+
+    // Fetch mood trends (last 14 days)
+    const fourteenDaysAgo = new Date()
+    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14)
+    const { data: moodTrends } = await supabase
+      .from('mood_logs')
+      .select('log_date, mood, stress, energy')
+      .eq('user_id', userId)
+      .gte('log_date', fourteenDaysAgo.toISOString().split('T')[0])
+      .order('log_date', { ascending: false })
+
+    console.log('Mood trends fetched:', moodTrends?.length || 0)
+
+    // Fetch recent journal entries for additional context (last 10)
+    const { data: recentJournals } = await supabase
+      .from('journal_entries')
+      .select('content, created_at, tags')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(10)
+
+    console.log('Recent journals fetched:', recentJournals?.length || 0)
+
     // Create enhanced prompt that considers sleep hours
     const sleepContext = sleepHours ? 
       `Sleep Context: ${sleepHours} hours of sleep. ${sleepHours < 6 ? 'Relatively little sleep, which may influence dream content and recall.' : sleepHours > 9 ? 'More sleep than average, which may affect dream vividness and complexity.' : 'Normal amount of sleep.'}` : ''
@@ -187,6 +232,58 @@ export async function POST(request: Request) {
 
       if (parts.length > 0) {
         personalizationContext = 'Personal Context: ' + parts.join(' ')
+      }
+    }
+
+    // Build recent dreams pattern context
+    let dreamPatternsContext = ''
+    if (recentDreams && recentDreams.length > 0) {
+      const allSymbols = recentDreams.flatMap(d => d.symbols || [])
+      const allThemes = recentDreams.flatMap(d => d.themes || [])
+      const allEmotions = recentDreams.flatMap(d => d.emotions || [])
+
+      const topSymbols = [...new Set(allSymbols)].slice(0, 5)
+      const topThemes = [...new Set(allThemes)].slice(0, 5)
+      const topEmotions = [...new Set(allEmotions)].slice(0, 5)
+
+      const parts: string[] = []
+      if (topSymbols.length > 0) parts.push(`Recurring symbols: ${topSymbols.join(', ')}`)
+      if (topThemes.length > 0) parts.push(`Common themes: ${topThemes.join(', ')}`)
+      if (topEmotions.length > 0) parts.push(`Frequent emotions: ${topEmotions.join(', ')}`)
+
+      if (parts.length > 0) {
+        dreamPatternsContext = `Dream History (last ${recentDreams.length} dreams): ` + parts.join('. ') + '.'
+      }
+    }
+
+    // Build life events context
+    let lifeEventsContext = ''
+    if (lifeEvents && lifeEvents.length > 0) {
+      const eventSummaries = lifeEvents.map(e => {
+        const intensity = e.intensity ? ` (intensity: ${e.intensity}/5)` : ''
+        return `${e.category}: ${e.title}${intensity}`
+      })
+      lifeEventsContext = `Recent Life Events: ${eventSummaries.join('; ')}.`
+    }
+
+    // Build mood trends context
+    let moodTrendsContext = ''
+    if (moodTrends && moodTrends.length > 0) {
+      const avgMood = (moodTrends.reduce((sum, m) => sum + m.mood, 0) / moodTrends.length).toFixed(1)
+      const avgStress = (moodTrends.reduce((sum, m) => sum + m.stress, 0) / moodTrends.length).toFixed(1)
+      const avgEnergy = (moodTrends.reduce((sum, m) => sum + m.energy, 0) / moodTrends.length).toFixed(1)
+
+      moodTrendsContext = `Mood Trends (last ${moodTrends.length} days): Average mood: ${avgMood}/5, stress: ${avgStress}/5, energy: ${avgEnergy}/5.`
+    }
+
+    // Build journal context
+    let journalContext = ''
+    if (recentJournals && recentJournals.length > 0) {
+      const allTags = recentJournals.flatMap(j => j.tags || [])
+      const topTags = [...new Set(allTags)].slice(0, 5)
+
+      if (topTags.length > 0) {
+        journalContext = `Recent Journal Themes: ${topTags.join(', ')}.`
       }
     }
 
@@ -297,8 +394,12 @@ ${dream}
 ${sleepContext}
 ${moodContext}
 ${personalizationContext}
+${dreamPatternsContext}
+${lifeEventsContext}
+${moodTrendsContext}
+${journalContext}
 
-Use the personal context provided to tailor your interpretation to this specific individual's life situation, communication preferences, and psychological needs. Be sensitive to their boundaries and goals.`
+Use the personal context provided to tailor your interpretation to this specific individual's life situation, communication preferences, and psychological needs. Consider their dream history patterns, current life events, mood trends, and journal themes when providing your analysis. Be sensitive to their boundaries and goals.`
         }
       ],
       temperature: 0.7,
