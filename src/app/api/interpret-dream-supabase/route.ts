@@ -530,7 +530,7 @@ Use the personal context provided to tailor your interpretation to this specific
             celebrations.push({
               type: 'goal_completed',
               title: 'Goal Completed!',
-              description: 'You've reached your dream logging goal!',
+              description: 'You have reached your dream logging goal!',
               icon: '🎯',
               animation: 'fireworks',
               xp_reward: 50
