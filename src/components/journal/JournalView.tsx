@@ -7,6 +7,7 @@ import { PlusCircle, BookOpen, Search, X } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 import JournalEntryCard from './JournalEntryCard'
 import JournalEntryDialog from './JournalEntryDialog'
+import SmartPrompts from '@/components/prompts/SmartPrompts'
 
 interface JournalEntry {
   id: string
@@ -124,6 +125,11 @@ export default function JournalView({ userId }: JournalViewProps) {
           <PlusCircle className="w-4 h-4 mr-2" />
           New Entry
         </Button>
+      </div>
+
+      {/* Smart Prompts */}
+      <div className="mb-6">
+        <SmartPrompts userId={userId} />
       </div>
 
       {/* Search */}

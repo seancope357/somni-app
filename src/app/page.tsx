@@ -18,7 +18,6 @@ import DreamEventLinker from '@/components/events/DreamEventLinker'
 import InsightsView from '@/components/insights/InsightsView'
 import SettingsView from '@/components/settings/SettingsView'
 import SimilarDreams from '@/components/dreams/SimilarDreams'
-import SmartPrompts from '@/components/prompts/SmartPrompts'
 import HistoryFilters, { FilterOptions } from '@/components/dreams/HistoryFilters'
 import JournalView from '@/components/journal/JournalView'
 import DreamDetailsDialog from '@/components/dreams/DreamDetailsDialog'
@@ -1013,13 +1012,6 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key`}
                   </div>
                 </CardContent>
               </Card>
-            )}
-
-            {/* Smart Prompts */}
-            {!interpretation && (
-              <div className="mb-6">
-                <SmartPrompts userId={user.id} />
-              </div>
             )}
 
             {/* Tips */}
