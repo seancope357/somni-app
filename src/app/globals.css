@@ -120,3 +120,32 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Lucid Interface Custom Styles */
+@layer utilities {
+  /* Radial gradient for vignette effect */
+  .bg-radial-gradient {
+    background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+  }
+
+  /* Scanline animation */
+  @keyframes scan {
+    0% {
+      transform: translateY(-100%);
+    }
+    100% {
+      transform: translateY(100%);
+    }
+  }
+
+  /* Vertical text */
+  .writing-mode-vertical {
+    writing-mode: vertical-rl;
+  }
+}
+
+/* Canvas and WebGL optimizations */
+canvas {
+  display: block;
+  touch-action: none;
+}
