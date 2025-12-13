@@ -138,12 +138,14 @@ export async function GET(request: Request) {
       next_title: nextTitle
     }
 
-    // Process achievements
-    const recentAchievements = achievements.map(ua => ({
-      achievement: ua.achievement,
-      just_unlocked: !ua.is_viewed,
-      progress: 100 // Already unlocked
-    }))
+    // Process achievements (filter out any with missing achievement data)
+    const recentAchievements = achievements
+      .filter(ua => ua.achievement != null)
+      .map(ua => ({
+        achievement: ua.achievement,
+        just_unlocked: !ua.is_viewed,
+        progress: 100 // Already unlocked
+      }))
 
     // Process goals with progress
     const activeGoals = goals.map(goal => {
