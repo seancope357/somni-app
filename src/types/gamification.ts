@@ -18,6 +18,11 @@ export interface UserStreak {
   longest_mood_streak: number
   last_mood_date: string | null
 
+  // Sleep logging streaks
+  current_sleep_streak: number
+  longest_sleep_streak: number
+  last_sleep_date: string | null
+
   // Combined wellness streak
   current_wellness_streak: number
   longest_wellness_streak: number
@@ -31,7 +36,7 @@ export interface UserStreak {
   updated_at: string
 }
 
-export type StreakType = 'dream' | 'mood' | 'wellness'
+export type StreakType = 'dream' | 'mood' | 'sleep' | 'wellness'
 
 export interface StreakUpdate {
   type: StreakType
@@ -61,10 +66,11 @@ export interface Achievement {
 }
 
 export interface AchievementCriteria {
-  type: 'dream_count' | 'mood_count' | 'journal_count' | 'chat_count' |
+  type: 'dream_count' | 'mood_count' | 'journal_count' | 'chat_count' | 'sleep_count' |
         'streak' | 'dream_length' | 'perspectives_viewed' | 'dream_link_created' |
         'pattern_discovered' | 'similar_dreams_found' | 'weekly_summary_viewed' |
-        'time_based' | 'perfect_week' | 'features_used' | 'onboarding_complete'
+        'time_based' | 'perfect_week' | 'features_used' | 'onboarding_complete' |
+        'sleep_score' | 'sleep_debt_free' | 'sleep_a_grade'
   threshold?: number
   category?: StreakType
   start?: string
@@ -91,7 +97,7 @@ export interface AchievementUnlock {
 // ============================================================================
 // GOALS
 // ============================================================================
-export type GoalType = 'dream_count' | 'mood_count' | 'journal_count' | 'custom'
+export type GoalType = 'dream_count' | 'mood_count' | 'journal_count' | 'sleep_count' | 'custom'
 export type GoalPeriod = 'daily' | 'weekly' | 'monthly' | 'custom'
 export type GoalStatus = 'active' | 'completed' | 'failed' | 'abandoned'
 
@@ -159,6 +165,7 @@ export interface DailyActivityStats {
   activity_date: string
   dreams_logged: number
   moods_logged: number
+  sleep_logs_logged: number
   journals_written: number
   life_events_added: number
   chat_messages_sent: number
@@ -285,6 +292,7 @@ export const CATEGORY_LABELS: Record<AchievementCategory, string> = {
 export const XP_REWARDS = {
   DREAM_LOGGED: 10,
   MOOD_LOGGED: 5,
+  SLEEP_LOGGED: 10,
   JOURNAL_ENTRY: 15,
   LIFE_EVENT_ADDED: 10,
   CHAT_MESSAGE: 2,

@@ -163,6 +163,9 @@ export async function updateStreak(
         current_mood_streak: type === 'mood' ? 1 : 0,
         longest_mood_streak: type === 'mood' ? 1 : 0,
         last_mood_date: type === 'mood' ? activityDate : null,
+        current_sleep_streak: type === 'sleep' ? 1 : 0,
+        longest_sleep_streak: type === 'sleep' ? 1 : 0,
+        last_sleep_date: type === 'sleep' ? activityDate : null,
         current_wellness_streak: 1,
         longest_wellness_streak: 1,
         last_wellness_date: activityDate
@@ -215,7 +218,22 @@ export async function updateStreak(
     updates.last_mood_date = activityDate
   }
 
-  // Always update wellness streak (dream OR mood)
+  if (type === 'sleep') {
+    const lastDate = streak.last_sleep_date
+    if (lastDate === activityDate) {
+      return { streak: streak.current_sleep_streak, milestone: false }
+    } else if (lastDate === yesterdayStr) {
+      currentStreak = streak.current_sleep_streak + 1
+      updates.current_sleep_streak = currentStreak
+      updates.longest_sleep_streak = Math.max(currentStreak, streak.longest_sleep_streak)
+    } else {
+      currentStreak = 1
+      updates.current_sleep_streak = 1
+    }
+    updates.last_sleep_date = activityDate
+  }
+
+  // Always update wellness streak (dream OR mood OR sleep)
   const lastWellness = streak.last_wellness_date
   if (lastWellness !== activityDate) {
     if (lastWellness === yesterdayStr) {
@@ -360,6 +378,14 @@ async function checkAchievementCriteria(
       return (count || 0) >= (threshold || 0)
     }
 
+    case 'sleep_count': {
+      const { count } = await supabase
+        .from('sleep_logs')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+      return (count || 0) >= (threshold || 0)
+    }
+
     case 'streak': {
       const { data: streak } = await supabase
         .from('user_streaks')
@@ -373,6 +399,8 @@ async function checkAchievementCriteria(
         return streak.current_dream_streak >= (threshold || 0)
       } else if (category === 'mood') {
         return streak.current_mood_streak >= (threshold || 0)
+      } else if (category === 'sleep') {
+        return streak.current_sleep_streak >= (threshold || 0)
       } else if (category === 'wellness') {
         return streak.current_wellness_streak >= (threshold || 0)
       }
@@ -386,6 +414,48 @@ async function checkAchievementCriteria(
         .eq('user_id', userId)
         .single()
       return !!onboarding
+    }
+
+    case 'sleep_score': {
+      // Check if user has achieved a perfect sleep score (100) at least once
+      const { data: perfectScore } = await supabase
+        .from('sleep_logs')
+        .select('sleep_score')
+        .eq('user_id', userId)
+        .gte('sleep_score', threshold || 100)
+        .limit(1)
+        .single()
+      return !!perfectScore
+    }
+
+    case 'sleep_debt_free': {
+      // Check if user has N consecutive days with optimal sleep (7-9 hours)
+      const { data: recentLogs } = await supabase
+        .from('sleep_logs')
+        .select('sleep_duration, log_date')
+        .eq('user_id', userId)
+        .order('log_date', { ascending: false })
+        .limit(threshold || 30)
+
+      if (!recentLogs || recentLogs.length < (threshold || 30)) return false
+
+      // Check if all recent logs are in optimal range (7-9 hours)
+      return recentLogs.every(log => log.sleep_duration >= 7 && log.sleep_duration <= 9)
+    }
+
+    case 'sleep_a_grade': {
+      // Check if user has N consecutive days with A grade sleep (score >= 80)
+      const { data: recentLogs } = await supabase
+        .from('sleep_logs')
+        .select('sleep_score, log_date')
+        .eq('user_id', userId)
+        .order('log_date', { ascending: false })
+        .limit(threshold || 7)
+
+      if (!recentLogs || recentLogs.length < (threshold || 7)) return false
+
+      // Check if all recent logs have A grade or better (score >= 80)
+      return recentLogs.every(log => (log.sleep_score || 0) >= 80)
     }
 
     // Add more criteria checks as needed
@@ -443,7 +513,7 @@ export async function calculateGoalProgress(goalId: string): Promise<{
  */
 export async function updateGoalProgress(
   userId: string,
-  goalType: 'dream_count' | 'mood_count' | 'journal_count',
+  goalType: 'dream_count' | 'mood_count' | 'journal_count' | 'sleep_count',
   incrementBy: number = 1
 ): Promise<string[]> {
   // Get active goals of this type
@@ -499,6 +569,7 @@ export async function updateDailyStats(
   updates: {
     dreams_logged?: number
     moods_logged?: number
+    sleep_logs_logged?: number
     journals_written?: number
     life_events_added?: number
     chat_messages_sent?: number
@@ -522,6 +593,9 @@ export async function updateDailyStats(
     }
     if (updates.moods_logged) {
       updateData.moods_logged = existing.moods_logged + updates.moods_logged
+    }
+    if (updates.sleep_logs_logged) {
+      updateData.sleep_logs_logged = existing.sleep_logs_logged + updates.sleep_logs_logged
     }
     if (updates.journals_written) {
       updateData.journals_written = existing.journals_written + updates.journals_written
@@ -547,6 +621,7 @@ export async function updateDailyStats(
         activity_date: today,
         dreams_logged: updates.dreams_logged || 0,
         moods_logged: updates.moods_logged || 0,
+        sleep_logs_logged: updates.sleep_logs_logged || 0,
         journals_written: updates.journals_written || 0,
         life_events_added: updates.life_events_added || 0,
         chat_messages_sent: updates.chat_messages_sent || 0,
