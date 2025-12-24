@@ -2,6 +2,7 @@
 // Core business logic for XP, achievements, streaks, and levels
 
 import { createClient } from '@supabase/supabase-js'
+import { getToday } from '@/lib/date-utils'
 import type {
   Achievement,
   AchievementCheck,
@@ -103,8 +104,8 @@ export async function awardXP(
     })
     .eq('user_id', userId)
 
-  // Update daily stats
-  const today = new Date().toISOString().split('T')[0]
+  // Update daily stats using standardized date utility
+  const today = getToday()
   await supabase
     .from('daily_activity_stats')
     .upsert({
@@ -504,7 +505,7 @@ export async function updateDailyStats(
     chat_messages_sent?: number
   }
 ): Promise<void> {
-  const today = new Date().toISOString().split('T')[0]
+  const today = getToday()
 
   // Get existing stats for today
   const { data: existing } = await supabase
